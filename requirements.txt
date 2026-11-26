@@ -1,0 +1,11 @@
+# tested versions in parentheses
+cadquery        # 2.8
+trimesh         # meshes and sections
+numpy
+scipy
+shapely
+rtree
+matplotlib
+pillow
+opencv-python-headless   # 5.0 (ArUco)
+feetech-servo-sdk        # reading the STS3215
