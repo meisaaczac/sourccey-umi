@@ -18,5 +18,5 @@
 
 ## Open points
 - Physical bench validation (`BENCH_CHECKLIST.md`) and real-world camera calibration (`software/calibrate_camera.py`).
-- Dedicated 3D-printed mount for the 20x20 mm camera (today: use your robot's own mount).
-- Optional 3D-printed belt case for the Raspberry Pi Zero 2W + 2S LiPo portable pack.
+
+*(Note: the 20x20 mm camera mounts directly onto the Sourccey gripper base's built-in `+y` wing, and the optional Mode B portable pack enclosure STLs are now included in `cad/stl/portable_pack_case.stl` and `cad/stl/portable_pack_lid.stl`.)*

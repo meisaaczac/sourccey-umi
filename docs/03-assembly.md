@@ -150,7 +150,7 @@ Route all cables cleanly along the back of the pistol grip as shown in **Figure 
    - a. Connect the **3-pin TTL bus cable** from the STS3215 servo to the **USB Bus Servo Adapter**.
    - b. Connect the **7.4 V DC power supply** to the adapter's power screw terminals (verify `+` and `GND` polarity!). *USB 5 V alone will NOT power the STS3215 encoder.*
    - c. *Back-EMF tip:* pulling the trigger fast by hand on an unpowered servo generates small reverse voltage spikes (Back-EMF) on the 7.4 V rail. A **2S LiPo** absorbs these naturally; if using a cheap wall adapter that resets USB on fast pulls, add a **1000 uF / 16 V electrolytic capacitor** across the 7.4 V terminals.
-   - c. Plug both the **USB Bus Servo Adapter** and the **Sourccey 20x20 mm Camera** into your PC or laptop.
+   - d. Plug both the **USB Bus Servo Adapter** and the **Sourccey 20x20 mm Camera** into your PC or laptop.
 2. Verify the serial port shows up (`/dev/ttyACM0` on Linux, `COMx` on Windows) and the wrist camera opens in a preview window.
 
 ![Figure 4.2 - Bench Mode (Tethered) Electronics & Wiring Diagram](img/07b_wiring.png)
@@ -179,7 +179,7 @@ Route all cables cleanly along the back of the pistol grip as shown in **Figure 
    - b. **Start/Stop Pushbutton:** `Pin 11 (GPIO 17) -> Button Terminal 1`, `Pin 9 (GND) -> Button Terminal 2`.
    - c. **Status LED / Buzzer:** `Pin 13 (GPIO 27) -> (+ 330 ohm resistor if LED) -> LED/Buzzer (+)`, `Pin 9 or 14 (GND) -> LED/Buzzer (-)`.
 3. **USB OTG connections:** plug the **Micro-USB OTG Hub** into the Pi Zero 2W's **DATA** Micro-USB port, then plug both the **USB Bus Servo Adapter** and the **20x20 mm Wrist Camera** into the hub.
-4. **Pack everything neatly** into a small ~140 x 100 mm belt pouch or wrist strap pouch as shown in **Figure 4.5**, keeping the LiPo battery padded and the main power switch accessible on the outside.
+4. **Pack everything neatly** into the 3D-printed belt/wrist enclosure (`cad/stl/portable_pack_case.stl` + `cad/stl/portable_pack_lid.stl`, 4x M3x10 mm lid screws, velcro strap through the floor slots) or a ~140 x 100 mm pouch as shown in **Figure 4.5**, keeping the LiPo battery in its separated bay and the main power switch accessible at the cutout.
 5. **First boot on the Pi Zero 2W:** enable I2C (`sudo raspi-config -> Interface Options -> I2C -> Enable`), verify the IMU shows up with `i2cdetect -y 1`, and test the portable daemon:
    ```bash
    python software/portable_node.py --imu bno085

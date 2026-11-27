@@ -8,6 +8,8 @@ Print **4 parts** in PETG (0.2 mm layers, 0.4 mm nozzle, 4 perimeters, 40% infil
 | Finger | `cad/stl_sourccey/finger_sourccey_gripper_LEFT.stl` | same | little |
 | Pistol grip | `cad/stl/pistol_grip_LEFT.stl` | this repo | no |
 | Trigger lever | `cad/stl/trigger_lever_LEFT.stl` | this repo | no |
+| Portable pack case *(Mode B optional)* | `cad/stl/portable_pack_case.stl` | this repo (`cad/accessories_cad.py`) | no |
+| Portable pack lid *(Mode B optional)* | `cad/stl/portable_pack_lid.stl` | this repo (`cad/accessories_cad.py`) | no |
 
 **Right arm:** use the `_RIGHT` files (my parts are mirrored; Sourccey's right gripper differs from the mirrored left by about 1 mm at the worst point, p95 0.8 mm, checked).
 
