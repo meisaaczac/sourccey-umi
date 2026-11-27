@@ -32,7 +32,7 @@ Most handheld UMI grippers suffer from an **embodiment gap**: the handheld jaws,
 - **Same servo encoder** — Uses the Sourccey's own Feetech STS3215 (torque off, read-only) at **0.088° resolution**, so the measured angle *is* the robot's `gripper` joint (`-5°` closed to `60°` open).
 - **Single-camera, low-cost design** — Uses **only the Sourccey's 20 × 20 mm wrist camera** behind the base's Ø25 mm `+y` side wing (zero occlusion, ray-cast verified). **No GoPro required.**
 - **Two printable add-ons only** — Just a parametric **pistol grip** (5-hole wrist interface + optional 1/4-20 accessory mount) and a **trigger lever** (4-hole finger cross + return spring + velcro strap). Both LEFT and RIGHT arm variants included.
-- **Grabette & LeRobot ready** — Includes [`software/grabette_lerobot.py`](software/grabette_lerobot.py) to bridge Sourccey's STS3215 into [Pollen Robotics Grabette](https://github.com/pollen-robotics/grabette) and export episodes straight to a [LeRobot](https://github.com/huggingface/lerobot) dataset (+ Hugging Face Hub push & [LeRobot Visualizer](https://huggingface.co/spaces/lerobot/visualize_dataset)).
+- **Grabette-inspired Web App & HF Space ([`space/`](space/README.md))** — Includes a ready-to-run Gradio dashboard + Docker Hugging Face Space modeled after Pollen Robotics' `grabette-fleet` & `grabette-slam`, adapted for Sourccey's single 20×20 mm RGB camera (`software/mono_slam.py` → 5-DoF IK → LeRobot dataset → embedded [`lerobot/visualize_dataset`](https://huggingface.co/spaces/lerobot/visualize_dataset)).
 
 ---
 
@@ -100,8 +100,9 @@ python tools/prepare_sourccey_parts.py
 # 2. (Optional) Regenerate parametric trigger lever & pistol grip (LEFT & RIGHT)
 python cad/umi_cad.py
 
-# 3. Run all 17 automated CAD & software validations
-python validation/run_all.py
+# 4. Launch the Sourccey UMI Studio web app (Record -> Monocular SLAM -> LeRobot -> Visualizer)
+pip install -r space/requirements.txt
+python space/app.py                      # http://localhost:7860 (or deploy space/ as a HF Docker Space)
 ```
 
 Then follow the build & setup workflow:
@@ -150,7 +151,8 @@ sourccey-umi/
 │   ├── media/                 # MuJoCo UMI -> Sourccey robot demo video & GIF
 │   ├── make_images.py         # Rebuilds CAD step diagrams
 │   └── render_demo_video.py   # Rebuilds MuJoCo pick-and-place video & GIF
-├── software/                  # STS3215 reader, recorder, ArUco sync, 5-DoF IK, tests
+├── software/                  # STS3215 reader, recorder, mono SLAM, 5-DoF IK, Grabette/LeRobot bridge
+├── space/                     # Sourccey UMI Studio (HF Docker Space + local web UI for Record -> LeRobot)
 ├── tools/                     # Downloads real Vulcan Sourccey STLs (not redistributed)
 └── validation/                # 17 automated geometric/mechanical/software checks
 ```

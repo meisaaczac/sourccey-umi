@@ -39,7 +39,20 @@ Aligns the clocks, resamples, solves IK on the real Sourccey URDF and flags good
 python software/test_software.py           # reader with a fake servo + IK round trip
 python software/test_pipeline.py           # recorder, video sync and episode, all simulated
 python software/test_grabette_lerobot.py   # Grabette angle adapter + Grabette/LeRobot exporters
+python software/test_mono_slam.py          # single-camera monocular SLAM (ArUco metric anchor + ORB VO)
 ```
+
+## Sourccey UMI Studio (Grabette-Style Web App & Hugging Face Space)
+Adapted directly from Pollen Robotics' [`grabette-fleet`](https://huggingface.co/spaces/pollen-robotics/grabette-fleet) + [`grabette-slam`](https://huggingface.co/spaces/pollen-robotics/grabette-slam) workflow for **Sourccey's single 20 × 20 mm RGB camera + STS3215 servo** (no GoPro or depth camera needed):
+
+```bash
+pip install -r space/requirements.txt
+python space/app.py    # opens http://localhost:7860
+```
+- **Tab 1 (Record & Sessions):** Create tasks, record directly from local USB camera + STS3215, or import episode `.zip` archives.
+- **Tab 2 (Monocular SLAM + IK → LeRobot):** Runs `software/mono_slam.py` (tabletop ArUco metric anchor + ORB visual odometry) → `software/build_episode.py` (5-DoF Sourccey URDF IK) → `software/grabette_lerobot.py` (LeRobot dataset + Hugging Face Hub push).
+- **Tab 3 (Visualizer):** Embeds [`lerobot/visualize_dataset`](https://huggingface.co/spaces/lerobot/visualize_dataset) for your published dataset.
+- Ready to deploy directly as a **Docker Space** on Hugging Face using [`space/Dockerfile`](../space/Dockerfile).
 
 ## Pollen Robotics Grabette & LeRobot Integration
 This repo ships **`software/grabette_lerobot.py`** to connect Sourccey UMI directly to the [Pollen Robotics Grabette](https://github.com/pollen-robotics/grabette) and [Hugging Face LeRobot](https://github.com/huggingface/lerobot) ecosystem—**no GoPro required**:
