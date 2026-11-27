@@ -11,7 +11,7 @@ Each item has a numeric criterion. If it fails, the right-hand column says what 
 | 5 | Spring return | Release the trigger at any point and the gripper opens by itself to the stop | The velcro strap becomes REQUIRED (index finger pushes); stronger spring; or swap the servo for an AS5600 with a free shaft |
 | 6 | Calibration: `sts_angle.py calibrate` | Measured travel 65° ± 5° | Wrong horn or servo: redo the finger assembly |
 | 7 | Repeatability: close 10 times on a 20 mm gauge block | standard deviation of q below 0.5° | Play in the lever or the horn |
-| 8 | Latency: 3 slow open/close cycles (q 10° to 55°) in front of the GoPro with the ArUco markers; run `sync_offset.py` | correlation above 0.9 and the lag repeats within ±10 ms over 5 recordings | Better lighting / bigger markers; repeat |
+| 8 | Latency: 3 slow open/close cycles (q 10° to 55°) in view of the Sourccey 20×20 mm wrist camera (or external camera) with the ArUco markers; run `sync_offset.py` | correlation above 0.9 and the lag repeats within ±10 ms over 5 recordings | Better lighting / bigger markers; repeat |
 | 9 | Pose: move the device 200 mm along a ruler | error below 5 mm; no `lost` frames in SLAM | Calibrate `T_tracker_tool`; revisit the tracker mount |
 | 10 | 1-minute episode: `record_episode.py` + SLAM + `build_episode.py` | valid above 80%; `err_pos_p95` below 15 mm | Record with the gripper pointing "radially" to the robot (see the 5-joint arm limits) |
 | 11 | Replay on the robot (or in the Sourccey MuJoCo sim) at low speed | Motion follows the episode without hitting anything | Review T_base_world and the calibration |

@@ -9,7 +9,7 @@ from retarget_ik import SourcceyArm
 
 CFG_EXAMPLE = dict(urdf="sourccey-hardware/URDF/Arms/ArmLeft/ArmLeft.urdf", fps=30.0,
     angle_lag_s=0.0, pose_lag_s=0.0,
-    T_tracker_tool=dict(xyz=[-0.051, -0.007, 0.034], quat_xyzw=[0, 0, 0, 1]),     # CAD mounting point; check the orientation of YOUR tracker
+    T_tracker_tool=dict(xyz=[-0.0115, 0.0507, -0.0175], quat_xyzw=[0.0, 0.0, -0.189, 0.982]),  # Sourccey 20x20 mm wrist camera in pivot frame
     T_base_world=dict(xyz=[0, 0, 0], quat_xyzw=[0, 0, 0, 1]),
     qc=dict(err_pos_mm_max=15.0, err_ori_deg_max=25.0, v_max_m_s=2.0, q_min=-5.5, q_max=60.5))
 
@@ -52,7 +52,7 @@ def build_episode(ep, pose, cfg, urdf=None):
     v = np.r_[0, np.linalg.norm(np.diff(tool[:, :3, 3], axis=0), axis=1) * fps]
     valid = (~lost_g) & (EP < qc["err_pos_mm_max"]) & (ER < qc["err_ori_deg_max"]) & (v < qc["v_max_m_s"]) & (gq > qc["q_min"]) & (gq < qc["q_max"])
     return dict(t=t, arm_q=Q, gripper_q_deg=gq, tool_pose=tool, err_pos_mm=EP, err_ori_deg=ER, speed=v, valid=valid,
-                lost=lost_g), dict(frames=len(t), valid_pct=round(100 * valid.mean(), 1), err_pos_p95_mm=round(float(np.percentile(EP, 95)), 2),
+                lost=lost_g), dict(frames=int(len(t)), valid_pct=float(round(100 * valid.mean(), 1)), err_pos_p95_mm=round(float(np.percentile(EP, 95)), 2),
                 err_ori_p95_deg=round(float(np.percentile(ER, 95)), 2), q_range_deg=[round(float(gq.min()), 1), round(float(gq.max()), 1)])
 
 if __name__ == "__main__":

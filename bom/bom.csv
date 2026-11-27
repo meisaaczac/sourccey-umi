@@ -10,8 +10,8 @@ Velcro strap 15 mm,~200 mm,"","index finger strap (required if the servo has fri
 Sourccey camera,1,"20 x 20 mm module","the same one as the robot; sits behind the 25 mm opening in the base wing. Board mount: use your robot's own",yes
 USB adapter for Feetech servos,1,"e.g. Waveshare Bus Servo Adapter or Feetech URT-1","",yes
 7.4 V power supply,1,"for the servo (torque off, read-only)","",yes
-1/4-20 x 1-1/4 in bolt,1,"head slides in sideways","mount for the pose tracker/camera",yes
-Pose tracker,1,"GoPro + UMI SLAM, Quest (HandUMI) or Vive Tracker","NOT included; mounting point at x=-51 y=-7 z=34 mm (pivot frame)",for data collection
+1/4-20 x 1-1/4 in bolt,1,"head slides in sideways","optional accessory mount on top of the grip (leave empty when using only the 20x20 mm camera)",no
+Optional RGB-D / pose sensor,1,"e.g. OAK-D SR or Orbbec Gemini 305 (for Grabette cloud RGB-D SLAM) or external tracker","NOT required for single-camera recording; optional mount at x=-51 y=-7 z=34 mm (pivot frame)",no
 ArUco stickers 20 x 20 mm,2,"software/aruco_id0_*.png and aruco_id1_*.png","finger (id 0) and fixed jaw (id 1), to sync clocks",for data collection
 Zip ties / tape,~4,"","cable management",no
 Sourccey base and finger,"1+1","real Vulcan STLs (downloaded by tools/prepare_sourccey_parts.py)","for the right arm use the v1_2 versions",yes

@@ -1,7 +1,7 @@
-"""Record ONE episode: camera + servo angle on the SAME monotonic clock. Real use:
+"""Record ONE episode: Sourccey 20x20 mm wrist camera + STS3215 servo angle on the SAME monotonic clock.
   python record_episode.py --out ep001 --camera 0 --port /dev/ttyACM0 --id 6 --seconds 60
 Writes: video.mp4, frames.csv (time per frame), angle.csv (t, raw, q), meta.json.
-The tracker video (GoPro/SLAM) is recorded separately; it is aligned afterwards with sync_offset.py."""
+If you use a separate pose stream, align it afterwards with sync_offset.py."""
 import argparse, csv, json, threading, time, os
 import numpy as np
 
@@ -55,6 +55,11 @@ if __name__ == "__main__":
     a = ap.parse_args()
     s = sts_angle.StsAngle(a.port, a.id); s.torque_off()
     if s.cal is None: raise SystemExit("run `python sts_angle.py calibrate` first")
-    cap = cv2.VideoCapture(a.camera); cap.set(3, a.w); cap.set(4, a.h); cap.set(5, a.fps)
-    wr = cv2.VideoWriter(f"{a.out}/video.mp4" if os.makedirs(a.out, exist_ok=True) is None else "", cv2.VideoWriter_fourcc(*"mp4v"), a.fps, (a.w, a.h))
-    print(record(a.out, cap, wr, s, a.seconds, a.hz, dict(cal=s.cal), wait_enter=a.seconds <= 0))
+    cap = cv2.VideoCapture(a.camera)
+    if not cap.isOpened(): raise SystemExit(f"could not open camera {a.camera}")
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, a.w); cap.set(cv2.CAP_PROP_FRAME_HEIGHT, a.h); cap.set(cv2.CAP_PROP_FPS, a.fps)
+    actual_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or a.w
+    actual_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or a.h
+    os.makedirs(a.out, exist_ok=True)
+    wr = cv2.VideoWriter(f"{a.out}/video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), a.fps, (actual_w, actual_h))
+    print(record(a.out, cap, wr, s, a.seconds, a.hz, dict(cal=s.cal, width=actual_w, height=actual_h), wait_enter=a.seconds <= 0))

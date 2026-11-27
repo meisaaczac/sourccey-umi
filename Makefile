@@ -5,5 +5,5 @@ cad:      ; python cad/umi_cad.py                        # generate lever and gr
 images:   ; python docs/make_images.py                   # step-by-step CAD diagrams
 demo:     ; python docs/render_demo_video.py             # render UMI -> Sourccey robot demo video & GIF
 validate: ; python validation/run_all.py                 # all validations; writes validation/RESULTS.md
-test:     ; python software/test_software.py && python software/test_pipeline.py
+test:     ; python software/test_software.py && python software/test_pipeline.py && python software/test_grabette_lerobot.py
 all: setup parts cad validate images

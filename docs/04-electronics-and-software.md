@@ -36,10 +36,31 @@ Aligns the clocks, resamples, solves IK on the real Sourccey URDF and flags good
 
 ## Tests
 ```bash
-python software/test_software.py     # reader with a fake servo + IK round trip
-python software/test_pipeline.py     # recorder, video sync and episode, all simulated
+python software/test_software.py           # reader with a fake servo + IK round trip
+python software/test_pipeline.py           # recorder, video sync and episode, all simulated
+python software/test_grabette_lerobot.py   # Grabette angle adapter + Grabette/LeRobot exporters
 ```
 
-## What is NOT here
-- SLAM/pose: use GoPro + the UMI pipeline (MIT), Quest (HandUMI) or Grabette (Apache-2.0), which also exports a LeRobot dataset.
-- In Grabette, the recorder reads 2 magnetic sensors over I2C (`packages/grabette/grabette/hardware/angle.py`). To use Grabette as the recorder, replace that read with `StsAngle.read_q()`.
+## Pollen Robotics Grabette & LeRobot Integration
+This repo ships **`software/grabette_lerobot.py`** to connect Sourccey UMI directly to the [Pollen Robotics Grabette](https://github.com/pollen-robotics/grabette) and [Hugging Face LeRobot](https://github.com/huggingface/lerobot) ecosystem—**no GoPro required**:
+
+1. **Export directly to a LeRobot dataset** (and optionally push to Hugging Face Hub to inspect in the [LeRobot Visualizer](https://huggingface.co/spaces/lerobot/visualize_dataset)):
+   ```bash
+   python software/grabette_lerobot.py to-lerobot \
+     --eps ep001 ep002 \
+     --out lerobot_sourccey \
+     --task "pick up the red block" \
+     --repo-id <your-hf-user>/sourccey-umi-demo \
+     --push-to-hub
+   ```
+   - Uses `episode.npz` (full 5-DoF `arm_q` + `gripper`) when present, or exports synchronized wrist-camera video + real STS3215 `gripper` angle directly from a raw `record_episode.py` folder.
+   - Writes standard Parquet (if `pyarrow` is installed, else CSV) + MP4 + `meta/info.json`, `episodes.jsonl`, `tasks.jsonl`.
+
+2. **Convert to Grabette's canonical episode layout** (`raw_video.mp4`, `frame_timestamps.json`, `angle_data.json`, `frames.json`, `metadata.json`):
+   ```bash
+   python software/grabette_lerobot.py to-grabette --ep ep001 --out grabette_ep001 --hand left
+   ```
+   - Also provides `StsAngleCapture`, a drop-in replacement for Grabette's `packages/grabette/grabette/hardware/angle.py` that maps Sourccey's STS3215 (`60°` open → `-5°` closed) to Grabette's radian convention (`0` open → `+` closing).
+
+> **Note on Pollen's cloud SLAM Space ([`pollen-robotics/grabette-slam`](https://huggingface.co/spaces/pollen-robotics/grabette-slam)):**
+> The Grabette Fleet + SLAM Hugging Face Spaces run RTAB-Map **RGB-D** visual-inertial SLAM (`offline_vslam`), which requires depth frames (`dcam_depth.mkv` + `dcam_left.mp4` from an OAK-D SR or Orbbec Gemini 305). With **only the single 20 × 20 mm Sourccey RGB camera**, use `grabette_lerobot.py to-lerobot` directly (paired with monocular SLAM or external pose tracking if you need 6-DoF arm IK).

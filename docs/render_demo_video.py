@@ -251,15 +251,10 @@ def build_umi_scene_xml():
       <geom type="mesh" mesh="umi_servo" material="servo_mat"/>
       <geom type="mesh" mesh="umi_grip" material="grip_mat"/>
 
-      <!-- 20x20 mm Wrist Camera in the base side wing -->
+      <!-- 20x20 mm Wrist Camera in the base side wing (only camera needed) -->
       <geom type="box" pos="-0.014 0.052 -0.0175" size="0.006 0.010 0.010" material="cam_mat"/>
       <geom type="cylinder" pos="-0.006 0.049 -0.0175" euler="0 1.57 0" size="0.0065 0.004" material="lens_mat"/>
       <camera name="wrist_cam" pos="-0.006 0.049 -0.0175" xyaxes="-0.42 -0.91 0 -0.10 0.05 0.99" fovy="64"/>
-
-      <!-- GoPro-style Pose Tracker on the top 1/4-20 pedestal -->
-      <geom type="cylinder" pos="-0.051 -0.007 0.038" size="0.005 0.006" material="metal_mat"/>
-      <geom type="box" pos="-0.051 -0.007 0.058" size="0.015 0.031 0.022" material="cam_mat"/>
-      <geom type="cylinder" pos="-0.035 0.006 0.060" euler="0 1.57 0" size="0.011 0.004" material="lens_mat"/>
 
       <!-- Anchor pin for extension spring -->
       <geom type="cylinder" pos="-0.042 -0.020 -0.026" euler="1.5708 0 0" size="0.0018 0.036" material="metal_mat"/>

@@ -1,8 +1,8 @@
 """Render 100% CAD-exact studio views (Hero + Exploded Assembly) in MuJoCo.
 
-Guarantees identical geometry and exact camera placement (20x20 mm wrist camera
-behind the Ø25 mm opening on the blue base's +y wing; GoPro tracker on top of
-the 1/4-20 pedestal) across all repository visuals.
+Guarantees identical geometry and exact camera placement (ONLY the 20x20 mm
+Sourccey wrist camera behind the Ø25 mm opening on the blue base's +y wing)
+across all repository visuals.
 
 Generates:
   - docs/img/00_hero.png
@@ -104,19 +104,12 @@ def render_hero():
       <geom type="mesh" mesh="umi_servo" material="servo_mat"/>
       <geom type="mesh" mesh="umi_grip" material="grip_mat"/>
 
-      <!-- 20x20 mm Wrist Camera STRICTLY behind the Ø25 mm opening in the +y side wing -->
+      <!-- 20x20 mm Wrist Camera STRICTLY behind the Ø25 mm opening in the +y side wing (only camera needed) -->
       <body name="wrist_camera" pos="-0.014 0.052 -0.0175" euler="0 0 -0.38">
         <geom type="box" pos="-0.004 0 0" size="0.0035 0.010 0.010" material="cam_mat"/>
         <geom type="cylinder" pos="0.003 0 0" euler="0 1.5708 0" size="0.0068 0.0045" material="cam_mat"/>
         <geom type="cylinder" pos="0.0078 0 0" euler="0 1.5708 0" size="0.0048 0.0008" material="lens_mat"/>
       </body>
-
-      <!-- GoPro-style Pose Tracker cleanly mounted on top of the 1/4-20 pedestal -->
-      <geom type="cylinder" pos="-0.051 -0.007 0.038" size="0.0052 0.005" material="metal_mat"/>
-      <geom type="box" pos="-0.051 -0.007 0.059" size="0.0155 0.031 0.022" material="cam_mat"/>
-      <geom type="cylinder" pos="-0.034 0.007 0.062" euler="0 1.5708 0" size="0.0105 0.0038" material="cam_mat"/>
-      <geom type="cylinder" pos="-0.030 0.007 0.062" euler="0 1.5708 0" size="0.0075 0.0008" material="lens_mat"/>
-      <geom type="box" pos="-0.035 -0.015 0.059" size="0.001 0.009 0.009" rgba="0.16 0.18 0.22 1"/>
 
       <!-- Anchor pin + coil extension spring -->
       <geom type="cylinder" pos="-0.042 -0.020 -0.026" euler="1.5708 0 0" size="0.0017 0.036" material="metal_mat"/>
@@ -136,7 +129,7 @@ def render_hero():
       </body>
     </body>
 
-    <!-- 3/4 front-side hero camera with clean studio headroom above GoPro and below cube -->
+    <!-- 3/4 front-side hero camera with clean studio headroom above pedestal and below cube -->
     <camera name="hero_cam" pos="0.22 -0.40 0.08" xyaxes="0.87 0.49 0 -0.14 0.24 0.96" fovy="34"/>
   </worldbody>
 </mujoco>

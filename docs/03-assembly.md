@@ -33,7 +33,7 @@ Stage all parts on your workbench before starting (full specs in [`BOM.md`](../B
 | 1 | Extension spring (~15 mm free length, ~0.15 N/mm) *(or rubber band)* | Step 6 |
 | 1 | 15 mm velcro strap (~200 mm length) | Step 6 |
 | 1 | Sourccey 20 × 20 mm wrist camera + mount | Step 7 |
-| 1 | 1/4-20 × 1-1/4" hex bolt + pose tracker (GoPro / Quest / Vive) | Step 7 |
+| 1 | *Optional:* 1/4-20 × 1-1/4" hex bolt (for optional top accessory mount) | Step 7 |
 | 2 | Printed 20 × 20 mm ArUco markers (`id 0` & `id 1`) | Step 8 |
 
 ### Assembly Sequence
@@ -45,7 +45,7 @@ flowchart LR
     S3 --> S4["4. Bolt Lever to Finger"]
     S4 --> S5["5. Install Servo & Finger"]
     S5 --> S6["6. Pin, Spring & Strap"]
-    S6 --> S7["7. Camera & Tracker"]
+    S6 --> S7["7. Wrist Camera"]
     S7 --> S8["8. ArUco & Ergonomics"]
     S8 --> S9["9. Calibrate & Bench Test"]
 ```
@@ -158,14 +158,14 @@ flowchart LR
 
 ---
 
-## Step 7 — Mount the Wrist Camera & Pose Tracker
+## Step 7 — Mount the Sourccey 20 × 20 mm Wrist Camera
 
 ![Step 7: Sourccey 20x20 mm camera](img/07_camera.png)
 
-**Parts:** **Sourccey 20 × 20 mm camera** + robot mount · `1×` **1/4-20 × 1-1/4" hex bolt** · **Pose tracker** (GoPro / Quest / Vive)
+**Parts:** **Sourccey 20 × 20 mm camera** + robot mount · *(Optional)* `1×` **1/4-20 × 1-1/4" hex bolt**
 
-1. **Wrist Camera:** Mount the **20 × 20 mm Sourccey camera** behind the **Ø25 mm circular opening** in the blue base's side wing using the same mount your Sourccey robot uses. Aim it toward the jaws—the UMI parts are ray-cast verified not to block the jaw gap.
-2. **Pose Tracker (6-DoF):** Slide the head of the **1/4-20 hex bolt** sideways into the rear hex slot on the top pedestal of the pistol grip, thread it upward through the Ø6.9 mm hole, and tighten your GoPro / Quest / Vive tracker mount onto it (`x = -51, y = -7, z = 34 mm` in the pivot frame).
+1. **Wrist Camera (only camera needed):** Mount the **20 × 20 mm Sourccey camera** behind the **Ø25 mm circular opening** in the blue base's `+y` side wing using the same mount your Sourccey robot uses. Aim it toward the jaws—the UMI parts are ray-cast verified not to block the jaw gap.
+2. **Optional Top 1/4-20 Accessory Mount:** No GoPro is needed or recommended (to keep the UMI low-cost). Leave the top pedestal empty for single-camera use, or slide a **1/4-20 hex bolt** sideways into the rear hex slot if you later attach an optional RGB-D/IMU module (e.g., OAK-D SR / Orbbec Gemini 305 for Pollen Robotics' `grabette-slam` Space) at `x = -51, y = -7, z = 34 mm` in the pivot frame.
 3. Route the servo bus cable and wrist camera cable neatly down the rear of the pistol grip using zip ties or tape so they do not snag your wrist during demonstrations.
 
 ---
