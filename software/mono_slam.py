@@ -46,6 +46,14 @@ def _load_frame_times(ep_dir: Path, n_frames: int, fps: float) -> np.ndarray:
     return np.arange(n_frames, dtype=np.float64) / max(fps, 1.0)
 
 
+def load_camera_calib(calib_path: str | Path) -> tuple[np.ndarray, np.ndarray]:
+    """Load real intrinsic matrix K and distortion coefficients from `camera_calib.json`."""
+    d = json.loads(Path(calib_path).read_text(encoding="utf-8"))
+    K = np.asarray(d["K"], dtype=np.float64).reshape(3, 3)
+    dist = np.asarray(d["dist"], dtype=np.float64).ravel()
+    return K, dist
+
+
 def estimate_monocular_pose(
     video_path: str | Path,
     ep_dir: str | Path | None = None,
@@ -53,6 +61,7 @@ def estimate_monocular_pose(
     marker_size_m: float = 0.08,
     hfov_deg: float = 78.0,
     vo_step_scale_m: float = 0.006,
+    calib_path: str | Path | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict]:
     """Estimate 6-DoF camera trajectory from a single RGB wrist video.
 
@@ -67,8 +76,11 @@ def estimate_monocular_pose(
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    K = default_camera_matrix(w, h, hfov_deg=hfov_deg)
-    dist = np.zeros(5, dtype=np.float64)
+    if calib_path is not None and Path(calib_path).exists():
+        K, dist = load_camera_calib(calib_path)
+    else:
+        K = default_camera_matrix(w, h, hfov_deg=hfov_deg)
+        dist = np.zeros(5, dtype=np.float64)
 
     # ArUco detector for tabletop metric anchor
     aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
@@ -190,7 +202,8 @@ def main():
     ap.add_argument("--out", default=None, help="Output pose.csv path (default: <ep>/pose.csv)")
     ap.add_argument("--table-marker-id", type=int, default=10, help="ArUco 4x4_50 ID on table for metric scale")
     ap.add_argument("--marker-mm", type=float, default=80.0, help="Printed tabletop ArUco marker side length (mm)")
-    ap.add_argument("--hfov", type=float, default=78.0, help="Camera horizontal FOV in degrees")
+    ap.add_argument("--hfov", type=float, default=78.0, help="Fallback horizontal FOV in degrees (when no --calib)")
+    ap.add_argument("--calib", default=None, help="Path to camera_calib.json from software/calibrate_camera.py")
     args = ap.parse_args()
 
     ep_dir = Path(args.ep)
@@ -201,6 +214,7 @@ def main():
         table_marker_id=args.table_marker_id,
         marker_size_m=args.marker_mm / 1000.0,
         hfov_deg=args.hfov,
+        calib_path=args.calib,
     )
     save_pose_csv(out_path, t, pos, quat, lost)
     print(json.dumps({"pose_csv": str(out_path), **summary}, indent=2))

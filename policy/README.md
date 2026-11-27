@@ -27,7 +27,11 @@ python policy/train_lerobot.py \
 
 Pass `--dry-run` first to inspect the exact `lerobot-train` command before launching GPU training.
 
+## Official Vulcan Robotics Ecosystem
+Datasets exported here follow the standard LeRobot format used by Vulcan Robotics' official [`vulcan-forge/lerobot-vulcan`](https://github.com/vulcan-forge/lerobot-vulcan) plugin and [`vulcan-forge/sourccey-desktop`](https://github.com/vulcan-forge/sourccey-desktop). You can also use `lerobot-find-port` to locate your STS3215 serial port quickly before calibrating.
+
 ## Tips for Sourccey UMI Policies
+- **Camera intrinsics:** run `python software/calibrate_camera.py --camera 0 --out camera_calib.json` with a printed chessboard and pass `--calib camera_calib.json` to `software/mono_slam.py` so wide-angle lens distortion does not warp 6-DoF trajectories.
 - **Latency matching:** when exporting with `grabette_lerobot.py to-lerobot`, try `--action-latency-ms 60` (2 frames at 30 fps) to compensate camera capture + model inference + STS3215 execution lag on the real robot.
 - **Relative EE actions:** `grabette_lerobot.py` automatically writes `action.relative_ee` (`[dx, dy, dz, drx, dry, drz, gripper]`) whenever `episode.npz` contains `tool_pose`, making trained policies much more robust to table/robot placement changes.
 - **Quality gate:** always pass `--enforce-qc` (or enable the QC gate checkbox in `space/app.py`) so episodes with SLAM jumps or high 5-DoF IK error are excluded before training.

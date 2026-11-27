@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy scipy opencv-contrib-python-headless trimesh pillow pyarrow
+      - name: Syntax check all Python files
+        run: |
+          python -m py_compile software/*.py tools/*.py policy/*.py space/app.py
+      - name: Run software & pipeline tests
+        run: |
+          python software/test_software.py
+          python software/test_pipeline.py
+          python software/test_grabette_lerobot.py
+          python software/test_mono_slam.py
+          python software/test_v2_features.py
+          python policy/train_lerobot.py --dataset demo/sourccey --policy act --dry-run

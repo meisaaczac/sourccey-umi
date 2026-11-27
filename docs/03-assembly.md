@@ -149,6 +149,7 @@ Route all cables cleanly along the back of the pistol grip as shown in **Figure 
 1. Wire everything as shown in **Figure 4.2**:
    - a. Connect the **3-pin TTL bus cable** from the STS3215 servo to the **USB Bus Servo Adapter**.
    - b. Connect the **7.4 V DC power supply** to the adapter's power screw terminals (verify `+` and `GND` polarity!). *USB 5 V alone will NOT power the STS3215 encoder.*
+   - c. *Back-EMF tip:* pulling the trigger fast by hand on an unpowered servo generates small reverse voltage spikes (Back-EMF) on the 7.4 V rail. A **2S LiPo** absorbs these naturally; if using a cheap wall adapter that resets USB on fast pulls, add a **1000 uF / 16 V electrolytic capacitor** across the 7.4 V terminals.
    - c. Plug both the **USB Bus Servo Adapter** and the **Sourccey 20x20 mm Camera** into your PC or laptop.
 2. Verify the serial port shows up (`/dev/ttyACM0` on Linux, `COMx` on Windows) and the wrist camera opens in a preview window.
 
@@ -213,7 +214,7 @@ To collect two-handed demonstrations for both Sourccey arms simultaneously, wire
 |---|---|---|
 | Hardware | Printed 20x20 mm ArUco Marker `ID 0` (`software/aruco_id0_20mm_300dpi.png`) | 1 |
 | Hardware | Printed 20x20 mm ArUco Marker `ID 1` (`software/aruco_id1_20mm_300dpi.png`) | 1 |
-| Hardware | Printed 80x80 mm Tabletop ArUco Marker `ID 10` (`DICT_4X4_50`, for monocular SLAM scale) | 1 |
+| Hardware | Printed 80x80 mm Tabletop ArUco Marker `ID 10` (`software/aruco_id10_80mm_300dpi.png`) | 1 |
 
 ### Procedure
 1. Place all 3 ArUco markers cleanly as shown in **Figure 5.0**:
