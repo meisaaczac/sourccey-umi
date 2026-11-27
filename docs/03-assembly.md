@@ -52,13 +52,16 @@ Tools needed: soldering iron (~220 °C), M3 hex keys, needle-nose pliers, scisso
 1. Fasten the Trigger Lever flat onto the `-y` outer face of the Sourccey Finger (4-hole cross) as shown in **Figure 2.1**.
    - a. `(4) M3x16mm` *(if screws are already installed on that side, replace them with screws 6 mm longer)*
    - b. Check that the lever and finger move as one solid piece with no play.
-2. Install the STS3215 servo, horn, and Finger + Lever sub-assembly into the Sourccey Base as shown in **Figure 2.2** (following the official *Sourccey Assembly Manual*).
-   - a. Keep the servo **unpowered (torque off)**.
-   - b. Sweep the finger by hand from `-5°` (closed) to `60°` (open): verify zero rubbing and confirm the lever's tail tab hits the open stop at `~58 to 60°`.
+2. Insert the **Feetech STS3215 servo** into the central cavity of the Sourccey Base and fasten it with its mounting screws as shown in **Figure 2.2** (connector port facing the rear/open side so the 3-pin bus cable routes cleanly down the grip).
+   - a. `(1) Feetech STS3215 7.4V` (prefer 1:147 or 1:191 gear ratio; keep torque OFF).
+3. Attach the servo horn and mount the Finger + Trigger Lever sub-assembly onto the STS3215 shaft as shown in **Figure 2.3** (following the official *Sourccey Assembly Manual*).
+   - a. Sweep the finger by hand from `-5°` (closed) to `60°` (open): verify zero rubbing and confirm the lever's tail tab hits the open stop at `~58 to 60°`.
 
 ![Figure 2.1 - Trigger Lever to Sourccey Finger](img/04_lever_on_finger.png)
 
-![Figure 2.2 - STS3215 Servo, Horn & Hinged Finger Assembly](img/05_assembled_gripper.png)
+![Figure 2.2 - Feetech STS3215 Servo Installation](img/05a_servo_install.png)
+
+![Figure 2.3 - Finger + Trigger Lever Mounted on STS3215 Horn](img/05_assembled_gripper.png)
 
 ---
 
@@ -86,7 +89,36 @@ Tools needed: soldering iron (~220 °C), M3 hex keys, needle-nose pliers, scisso
 
 ---
 
-## Stage 4: Ergonomics, ArUco Stickers & Verification
+## Stage 4: Electronics & Wiring
+
+### Materials
+| Type | Name | Count |
+|---|---|---|
+| Electronics | Feetech / Waveshare USB Bus Servo Adapter (e.g. URT-1) | 1 |
+| Electronics | 7.4 V DC Power Supply (2S LiPo or 7.4 V bench adapter) | 1 |
+| Cable | 3-Pin Feetech TTL Servo Bus Cable | 1 |
+| Cable | USB-C / USB Data Cable (Adapter -> PC) | 1 |
+| Cable | Sourccey 20x20 mm Camera USB Cable (Camera -> PC) | 1 |
+| Hardware | Zip Ties / Tape (cable management) | 4 |
+
+### Procedure
+1. Connect the **3-pin TTL bus cable** from the STS3215 servo to the **USB Bus Servo Adapter** as shown in **Figure 4.1**.
+2. Connect the **7.4 V power supply** to the bus adapter power terminals (double-check `+` and `GND` polarity before turning on).
+   - a. USB 5 V alone does **not** power the STS3215 encoder; the 7.4 V supply is required even with torque turned off.
+   - b. Make sure the servo has its own bus ID (examples in this repo use `ID 6`).
+3. Plug both the **USB Bus Servo Adapter** and the **Sourccey 20x20 mm Wrist Camera** into your PC or Raspberry Pi.
+4. Bundle both cables cleanly down the back of the pistol grip with zip ties, leaving gentle slack at the wrist so pulling the trigger or turning your hand never tugs on the connectors.
+5. Run calibration and verify live angle + camera preview:
+   ```bash
+   python software/sts_angle.py calibrate --port /dev/ttyACM0 --id 6
+   python space/app.py
+   ```
+
+![Figure 4.1 - Electronics & Wiring Diagram](img/07b_wiring.png)
+
+---
+
+## Stage 5: Ergonomics, ArUco Stickers & Verification
 
 ### Materials
 | Type | Name | Count |
@@ -96,10 +128,10 @@ Tools needed: soldering iron (~220 °C), M3 hex keys, needle-nose pliers, scisso
 
 ### Procedure
 1. Stick `id 0` on the top flat face of the orange finger and `id 1` on the outer face of the blue fixed jaw (print at 100% scale / 300 DPI).
-2. Hold the UMI as shown in **Figure 4.0**: palm behind the grip, 3 fingers in the grip grooves, index finger in the velcro loop on the green trigger pad.
-3. Verify the full sweep shown in **Figure 4.1**: released = open (`q = 60°`, ~82 mm gap), pulled = closed (`q = -5°`, ~10.6 mm gap).
-4. Wire up the STS3215 + 20x20 mm camera and run calibration in [`04-electronics-and-software.md`](04-electronics-and-software.md), then complete [`BENCH_CHECKLIST.md`](../BENCH_CHECKLIST.md).
+2. Hold the UMI as shown in **Figure 5.0**: palm behind the grip, 3 fingers in the grip grooves, index finger in the velcro loop on the green trigger pad.
+3. Verify the full sweep shown in **Figure 5.1**: released = open (`q = 60°`, ~82 mm gap), pulled = closed (`q = -5°`, ~10.6 mm gap).
+4. Complete [`BENCH_CHECKLIST.md`](../BENCH_CHECKLIST.md) before recording real training datasets (full software/web-app guide in [`04-electronics-and-software.md`](04-electronics-and-software.md)).
 
-![Figure 4.0 - Grip & Trigger Ergonomics](img/08_how_to_hold.png)
+![Figure 5.0 - Grip & Trigger Ergonomics](img/08_how_to_hold.png)
 
-![Figure 4.1 - Trigger Sweep & Joint Range](img/09_operation.png)
+![Figure 5.1 - Trigger Sweep & Joint Range](img/09_operation.png)

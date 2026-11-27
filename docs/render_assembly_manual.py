@@ -211,8 +211,28 @@ def make_04_lever_on_finger():
     out.save(IMG_DIR / "04_lever_on_finger.png")
 
 
+def make_05a_servo_install():
+    """Figure 2.2 - Insert Feetech STS3215 Servo into Sourccey Base Cavity."""
+    xml = _base_header(1280, 720, fovy=30) + """
+    <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
+    <geom type="mesh" mesh="umi_base" material="base_mat"/>
+    <!-- STS3215 servo exploded upward/outward cleanly above the base servo bay -->
+    <geom type="mesh" pos="0.0 0.0 0.068" mesh="umi_servo" material="servo_mat"/>
+    <geom type="capsule" fromto="0.0 -0.005 0.005  0.0 -0.005 0.062" size="0.0007" material="guide_mat"/>
+    <geom type="capsule" fromto="-0.020 -0.005 0.005  -0.020 -0.005 0.062" size="0.0007" material="guide_mat"/>
+    <camera name="cam" pos="0.18 -0.32 0.08" xyaxes="0.86 0.51 0 -0.18 0.30 0.94"/>
+  </worldbody></mujoco>"""
+    im = _render_tech_view(xml, 1280, 720)
+    out = _frame_figure(
+        im,
+        "Figure 2.2 - Feetech STS3215 Servo Installation into Sourccey Base Cavity",
+        ["(1) Feetech STS3215 7.4V", "Servo Mounting Screws"],
+    )
+    out.save(IMG_DIR / "05a_servo_install.png")
+
+
 def make_05_assembled():
-    """Figure 2.2 - Assemble STS3215 Servo, Horn & Finger."""
+    """Figure 2.3 - Mount Finger + Trigger Lever onto STS3215 Horn."""
     xml = _base_header(1280, 720, fovy=30) + """
     <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
     <geom type="mesh" mesh="umi_base" material="base_mat"/>
@@ -225,8 +245,91 @@ def make_05_assembled():
     <camera name="cam" pos="0.18 -0.32 0.05" xyaxes="0.85 0.52 0 -0.15 0.25 0.96"/>
   </worldbody></mujoco>"""
     im = _render_tech_view(xml, 1280, 720, qpos=[math.radians(28.0)])
-    out = _frame_figure(im, "Figure 2.2 - STS3215 Servo, Horn & Hinged Finger Assembly", ["(1) STS3215 Servo + Horn"])
+    out = _frame_figure(im, "Figure 2.3 - Finger + Trigger Lever Mounted on STS3215 Horn", ["(1) STS3215 Horn + Screws"])
     out.save(IMG_DIR / "05_assembled_gripper.png")
+
+
+def make_07b_wiring():
+    """Figure 4.1 - Clean Sourccey-manual style Electronics & Wiring Diagram."""
+    W, H = 1280, 680
+    img = Image.new("RGB", (W, H), (255, 255, 255))
+    draw = ImageDraw.Draw(img)
+
+    f_title = get_font(20, bold=True)
+    f_sub = get_font(15, bold=False)
+    f_wire = get_font(15, bold=True)
+    f_warn = get_font(16, bold=True)
+
+    def box(x0, y0, x1, y1, fill, outline, title, lines):
+        draw.rounded_rectangle([x0, y0, x1, y1], radius=10, fill=fill, outline=outline, width=3)
+        draw.text(((x0 + x1) // 2, y0 + 24), title, fill=(20, 28, 40), font=f_title, anchor="mm")
+        for i, ln in enumerate(lines):
+            draw.text(((x0 + x1) // 2, y0 + 54 + i * 22), ln, fill=(65, 78, 96), font=f_sub, anchor="mm")
+
+    # Left: Sourccey UMI Hardware Group
+    draw.rounded_rectangle([38, 92, 412, 540], radius=14, fill=(248, 250, 252), outline=(148, 163, 184), width=2)
+    draw.text((225, 118), "SOURCCEY UMI (HANDHELD)", fill=(51, 65, 85), font=f_wire, anchor="mm")
+
+    box(66, 148, 384, 290, (239, 246, 255), (37, 99, 235), "Feetech STS3215 Servo", [
+        "7.4 V bus servo (ID 6)",
+        "Torque OFF (read-only encoder)",
+        "0.088 deg resolution @ ~200 Hz",
+    ])
+    box(66, 355, 384, 495, (240, 253, 244), (22, 163, 74), "Sourccey 20x20 mm Camera", [
+        "Mounted behind +y Ø25 mm wing",
+        "Standard USB UVC video stream",
+        "Same viewpoint as Sourccey arm",
+    ])
+
+    # Middle: Bus Servo Adapter + 7.4V PSU
+    box(495, 148, 825, 290, (255, 247, 237), (234, 88, 12), "USB Bus Servo Adapter", [
+        "Waveshare Bus Servo Adapter",
+        "or Feetech URT-1 (1 Mbps TTL)",
+        "Bridges 3-pin bus <-> USB",
+    ])
+    box(520, 355, 800, 475, (254, 242, 242), (220, 38, 38), "7.4 V DC Power Supply", [
+        "2S LiPo or 7.4 V bench adapter",
+        "Powers STS3215 encoder",
+        "Check + / - polarity!",
+    ])
+
+    # Right: Host PC / Raspberry Pi
+    box(920, 210, 1235, 430, (241, 245, 249), (30, 41, 59), "PC / Raspberry Pi", [
+        "Runs record_episode.py or",
+        "Sourccey UMI Studio (space/app.py)",
+        "Serial: /dev/ttyACM0 (or COMx)",
+        "Video: USB Camera 0",
+        "Shared monotonic clock sync",
+    ])
+
+    # Wires
+    # 1. STS3215 <-> Adapter (3-pin TTL bus)
+    draw.line([(384, 218), (495, 218)], fill=(37, 99, 235), width=5)
+    draw.text((440, 198), "3-pin Bus", fill=(37, 99, 235), font=f_wire, anchor="mm")
+    draw.text((440, 236), "(TTL)", fill=(71, 85, 105), font=f_sub, anchor="mm")
+
+    # 2. 7.4V PSU -> Adapter (Red/Black power)
+    draw.line([(652, 355), (652, 290)], fill=(220, 38, 38), width=5)
+    draw.line([(668, 355), (668, 290)], fill=(30, 41, 59), width=5)
+    draw.text((748, 322), "7.4 V (+ / GND)", fill=(220, 38, 38), font=f_wire, anchor="mm")
+
+    # 3. Adapter -> PC (USB-C)
+    draw.line([(825, 218), (875, 218), (875, 285), (920, 285)], fill=(234, 88, 12), width=5)
+    draw.text((872, 200), "USB", fill=(234, 88, 12), font=f_wire, anchor="mm")
+
+    # 4. Wrist Camera -> PC (USB direct, routed cleanly along bottom)
+    draw.line([(384, 495), (384, 520), (875, 520), (875, 375), (920, 375)], fill=(22, 163, 74), width=5)
+    draw.text((640, 504), "USB Cable (route with zip ties down rear of pistol grip)", fill=(22, 163, 74), font=f_wire, anchor="mm")
+
+    # Safety callout banner at bottom
+    draw.rounded_rectangle([38, 575, 1235, 635], radius=8, fill=(254, 249, 195), outline=(202, 138, 4), width=2)
+    draw.text((636, 605), "IMPORTANT: Power STS3215 with 7.4 V via the bus adapter (USB 5 V alone will not power the encoder). Keep torque OFF.", fill=(113, 63, 18), font=f_warn, anchor="mm")
+
+    out = _frame_figure(
+        img,
+        "Figure 4.1 - Sourccey UMI Electronics & Wiring Diagram (STS3215 + 20x20 mm Wrist Camera)",
+    )
+    out.save(IMG_DIR / "07b_wiring.png")
 
 
 def make_06_spring():
@@ -326,8 +429,10 @@ if __name__ == "__main__":
     make_02_inserts()
     make_03_grip_on_base()
     make_04_lever_on_finger()
+    make_05a_servo_install()
     make_05_assembled()
     make_06_spring()
     make_07_camera()
+    make_07b_wiring()
     make_09_operation()
     print("Generated all Sourccey-manual style assembly figures in", IMG_DIR)
