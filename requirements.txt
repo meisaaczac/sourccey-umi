@@ -7,5 +7,7 @@ shapely
 rtree
 matplotlib
 pillow
-opencv-python-headless   # 5.0 (ArUco)
-feetech-servo-sdk        # reading the STS3215
+opencv-contrib-python-headless   # ArUco + monocular SLAM
+feetech-servo-sdk                # reading the STS3215
+pyarrow                          # optional: Parquet export for LeRobot datasets
+huggingface-hub                  # optional: push LeRobot datasets to HF Hub

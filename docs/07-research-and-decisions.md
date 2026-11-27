@@ -14,9 +14,9 @@
 - **Spring anchored inside the beam** at (x=-42, z=-26): the only region where the spring torque is opening over the whole travel (numerical sweep).
 - **Side pad** (not a bar across the base): the base's fixed jaw would block a bar in the middle while opening.
 - **Fallback if servo friction is high**: swap the servo for an AS5600 magnetic sensor on a free shaft (as Grabette does). Not designed yet.
-- **This repo does not redistribute Vulcan's parts** (no declared license): `tools/prepare_sourccey_parts.py` downloads them from the source.
+- **Sourccey STLs included in `cad/stl_sourccey/`** (credit to Vulcan Robotics; `tools/prepare_sourccey_parts.py` can re-download fresh copies from upstream anytime).
 
 ## Open points
-- Which SLAM/tracker to use and how to calibrate `T_tracker_tool`.
-- LeRobot export (reuse Grabette).
-- Mount for the 20x20 camera (today: use your robot's).
+- Physical bench validation (`BENCH_CHECKLIST.md`) and real-world camera calibration (`software/calibrate_camera.py`).
+- Dedicated 3D-printed mount for the 20x20 mm camera (today: use your robot's own mount).
+- Optional 3D-printed belt case for the Raspberry Pi Zero 2W + 2S LiPo portable pack.

@@ -5,6 +5,7 @@
 **A handheld UMI gripper built around the real [Vulcan Robotics Sourccey](https://vulcanrobotics.ai) gripper.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/meisaaczac/sourccey-umi/actions/workflows/ci.yml/badge.svg)](https://github.com/meisaaczac/sourccey-umi/actions/workflows/ci.yml)
 [![CAD Checks](https://img.shields.io/badge/CAD%20Validation-17%2F17%20Passed-22c55e.svg)](validation/RESULTS.md)
 [![Hardware](https://img.shields.io/badge/Hardware-PETG%20%2B%20STS3215-f97316.svg)](BOM.md)
 [![Platform](https://img.shields.io/badge/Robot-Vulcan%20Sourccey-1e293b.svg)](https://github.com/vulcan-forge/sourccey-hardware)
