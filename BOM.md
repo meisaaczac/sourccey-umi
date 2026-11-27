@@ -19,6 +19,12 @@ Prices: I only estimated the servo (and flagged it). Everything else is unchecke
 | Optional RGB-D / pose sensor | 1 | e.g. OAK-D SR or Orbbec Gemini 305 (for Pollen `grabette-slam` cloud RGB-D SLAM) or external tracker | NOT required for single-camera recording; optional mount at x=-51 y=-7 z=34 mm (pivot frame) | no |
 | ArUco stickers 20 x 20 mm | 2 | software/aruco_id0_*.png and aruco_id1_*.png | finger (id 0) and fixed jaw (id 1), to sync clocks | for data collection |
 | Zip ties / tape | ~4 |  | cable management | no |
-| Sourccey base and finger | 1+1 | real Vulcan STLs (downloaded by tools/prepare_sourccey_parts.py) | for the right arm use the v1_2 versions | yes |
+| Sourccey base and finger | 1+1 | real Vulcan STLs (`cad/stl_sourccey/`, refresh with `tools/prepare_sourccey_parts.py`) | for the right arm use the `_RIGHT` files | yes |
+| Raspberry Pi Zero 2W + microSD | 1 | portable wireless recorder node (Mode B) | optional: makes the UMI fully untethered over Wi-Fi | no (portable mode) |
+| 2S LiPo battery 7.4 V | 1 | 1000 to 2200 mAh + power switch | optional: powers STS3215 + 5V BEC in portable mode | no (portable mode) |
+| 5 V 3A Buck / UBEC | 1 | steps 7.4 V down to 5.0 V for Pi Zero 2W | required if using 2S LiPo with Pi Zero 2W | no (portable mode) |
+| Micro-USB OTG hub (2+ ports) | 1 | connects Bus Adapter + 20x20 mm camera to Pi Zero 2W | required in portable mode | no (portable mode) |
+| BNO085 or MPU6050 IMU | 1 | 3.3 V I2C breakout | optional: 100 Hz accel+gyro logged by `portable_node.py` for VIO | no (portable mode) |
+| Momentary pushbutton + LED/buzzer | 1+1 | GPIO 17 (Start/Stop) + GPIO 27 (status feedback) | optional: trigger recording from the grip without touching a keyboard | no (portable mode) |
 
 Have 5 to 10 spare M3 screws and a small hex key on hand. The servo needs its own ID (see `docs/04-electronics-and-software.md`).

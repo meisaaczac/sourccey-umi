@@ -159,6 +159,8 @@ def build_and_publish(
     run_slam_ik: bool,
     table_marker_id: int,
     marker_mm: float,
+    action_latency_ms: float,
+    enforce_qc: bool,
     repo_id: str,
     push_to_hub: bool,
     hf_token: str,
@@ -195,6 +197,7 @@ def build_and_publish(
                 try:
                     data, rep = build_episode(str(ep), load_pose_csv(str(pose_csv)), cfg, urdf=urdf_path)
                     np.savez(ep / "episode.npz", **data)
+                    (ep / "episode.npz.qc.json").write_text(json.dumps(rep, indent=2), encoding="utf-8")
                     logs.append(f"[{ep.name}] Sourccey 5-DoF IK: valid={rep['valid_pct']}%, "
                                 f"p95_pos={rep['err_pos_p95_mm']} mm")
                 except Exception as e:
@@ -212,9 +215,15 @@ def build_and_publish(
             fps=30.0,
             repo_id=repo_id.strip() or None,
             push_to_hub=bool(push_to_hub),
+            action_latency_ms=float(action_latency_ms),
+            enforce_qc=bool(enforce_qc),
         )
+        if res.get("skipped_episodes"):
+            for sk in res["skipped_episodes"]:
+                logs.append(f"[QC SKIP] {sk['episode']}: {sk['reason']}")
         logs.append(f"[LeRobot] Built dataset at `{res['out_dir']}` "
-                    f"({res['total_episodes']} eps, {res['total_frames']} frames, format={res['format']})")
+                    f"({res['total_episodes']} eps, {res['total_frames']} frames, "
+                    f"rel_ee={res['has_relative_ee']}, shift={res['action_step_shift']}, format={res['format']})")
     except Exception as e:
         return "\n".join(logs + [f"[error] {e}"]), "", ""
 
@@ -284,6 +293,9 @@ def build_ui() -> gr.Blocks:
                 marker_id = gr.Number(label="Tabletop ArUco ID (metric scale)", value=10, precision=0)
                 marker_mm = gr.Number(label="Marker Size (mm)", value=80.0)
             with gr.Row():
+                action_latency_ms = gr.Slider(label="Latency Matching (ms)", minimum=0, maximum=150, value=0, step=10)
+                enforce_qc = gr.Checkbox(label="Enforce QC Gate (skip valid < 80% or p95 > 15 mm)", value=False)
+            with gr.Row():
                 repo_id = gr.Textbox(label="Target HF Dataset repo_id", placeholder="meisaaczac/sourccey-umi-demo")
                 push_cb = gr.Checkbox(label="Push to Hugging Face Hub", value=False)
                 hf_token = gr.Textbox(label="HF Write Token (optional if logged in)", type="password")
@@ -304,7 +316,7 @@ def build_ui() -> gr.Blocks:
         btn_del.click(delete_last_episode, [], [ep_select, task_status])
         btn_build.click(
             build_and_publish,
-            [ep_select, task_prompt, run_slam_ik, marker_id, marker_mm, repo_id, push_cb, hf_token],
+            [ep_select, task_prompt, run_slam_ik, marker_id, marker_mm, action_latency_ms, enforce_qc, repo_id, push_cb, hf_token],
             [build_log, vis_link, vis_embed],
         )
     return demo

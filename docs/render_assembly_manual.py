@@ -327,9 +327,116 @@ def make_07b_wiring():
 
     out = _frame_figure(
         img,
-        "Figure 4.1 - Sourccey UMI Electronics & Wiring Diagram (STS3215 + 20x20 mm Wrist Camera)",
+        "Figure 4.1 - Bench Mode (Tethered) Electronics & Wiring Diagram",
     )
     out.save(IMG_DIR / "07b_wiring.png")
+
+
+def make_07c_portable_wiring():
+    """Figure 4.2 - Portable Wireless Mode (Raspberry Pi Zero 2W + 2S LiPo + BNO085 IMU + Pushbutton)."""
+    W, H = 1280, 720
+    img = Image.new("RGB", (W, H), (255, 255, 255))
+    draw = ImageDraw.Draw(img)
+
+    f_title = get_font(19, bold=True)
+    f_sub = get_font(14, bold=False)
+    f_wire = get_font(14, bold=True)
+    f_warn = get_font(15, bold=True)
+
+    def box(x0, y0, x1, y1, fill, outline, title, lines):
+        draw.rounded_rectangle([x0, y0, x1, y1], radius=10, fill=fill, outline=outline, width=3)
+        draw.text(((x0 + x1) // 2, y0 + 22), title, fill=(20, 28, 40), font=f_title, anchor="mm")
+        for i, ln in enumerate(lines):
+            draw.text(((x0 + x1) // 2, y0 + 50 + i * 20), ln, fill=(65, 78, 96), font=f_sub, anchor="mm")
+
+    # Left: On-Grip Hardware
+    draw.rounded_rectangle([32, 34, 388, 595], radius=14, fill=(248, 250, 252), outline=(148, 163, 184), width=2)
+    draw.text((210, 56), "ON-GRIP HARDWARE (HANDHELD)", fill=(51, 65, 85), font=f_wire, anchor="mm")
+
+    box(54, 78, 366, 184, (239, 246, 255), (37, 99, 235), "Feetech STS3215 Servo", [
+        "ID 6 (Left) / daisy-chain ID 16 (Right)",
+        "7.4 V bus, torque OFF (~50 mA)",
+    ])
+    box(54, 206, 366, 312, (240, 253, 244), (22, 163, 74), "Sourccey 20x20 mm Camera", [
+        "Behind +y Ø25 mm wing opening",
+        "USB OTG -> Pi Zero 2W",
+    ])
+    box(54, 334, 366, 440, (245, 243, 255), (124, 58, 237), "BNO085 / MPU6050 IMU", [
+        "I2C (/dev/i2c-1: SDA/SCL + 3.3V/GND)",
+        "100 Hz accel + gyro for VIO",
+    ])
+    box(54, 462, 366, 568, (254, 249, 195), (202, 138, 4), "Pushbutton + LED / Buzzer", [
+        "Record button: GPIO 17 -> GND",
+        "Status LED/Buzzer: GPIO 27 -> GND",
+    ])
+
+    # Middle: Power Pack (2S LiPo + 5V BEC + Bus Adapter)
+    draw.rounded_rectangle([465, 34, 825, 595], radius=14, fill=(255, 251, 245), outline=(234, 88, 12), width=2)
+    draw.text((645, 56), "POWER & BUS PACK (BELT / WRIST)", fill=(154, 52, 18), font=f_wire, anchor="mm")
+
+    box(488, 78, 802, 192, (255, 247, 237), (234, 88, 12), "USB Bus Servo Adapter", [
+        "Waveshare / Feetech URT-1",
+        "7.4 V in -> powers STS3215 bus",
+        "USB data -> Pi Zero 2W",
+    ])
+    box(488, 232, 802, 348, (254, 242, 242), (220, 38, 38), "2S LiPo Battery (7.4 V)", [
+        "e.g. 1000-2200 mAh 2S + switch",
+        "Feeds Bus Adapter directly (7.4 V)",
+        "Feeds 5V BEC input",
+    ])
+    box(488, 388, 802, 502, (254, 242, 242), (185, 28, 28), "5V 3A Buck / UBEC", [
+        "Steps 7.4 V down to clean 5.0 V",
+        "Powers Raspberry Pi Zero 2W",
+        "Common GND with battery",
+    ])
+
+    # Right: Raspberry Pi Zero 2W
+    box(915, 165, 1245, 455, (241, 245, 249), (30, 41, 59), "Raspberry Pi Zero 2W", [
+        "Runs record_episode.py +",
+        "portable_node.py over Wi-Fi",
+        "2-port Micro-USB OTG Hub:",
+        "  - USB Bus Servo Adapter",
+        "  - 20x20 mm Wrist Camera",
+        "GPIO Header:",
+        "  - I2C1 (GPIO 2/3) -> IMU",
+        "  - GPIO 17 -> Record Button",
+        "  - GPIO 27 -> LED / Buzzer",
+        "Syncs episodes to HF / Studio",
+    ])
+
+    # Wiring lines
+    # STS3215 -> Adapter
+    draw.line([(366, 130), (488, 130)], fill=(37, 99, 235), width=5)
+    draw.text((427, 114), "3-pin TTL", fill=(37, 99, 235), font=f_wire, anchor="mm")
+    # 2S LiPo -> Adapter (7.4V)
+    draw.line([(645, 232), (645, 192)], fill=(220, 38, 38), width=5)
+    draw.text((708, 212), "7.4 V", fill=(220, 38, 38), font=f_wire, anchor="mm")
+    # 2S LiPo -> 5V BEC
+    draw.line([(645, 348), (645, 388)], fill=(220, 38, 38), width=5)
+    draw.text((708, 368), "7.4 V", fill=(220, 38, 38), font=f_wire, anchor="mm")
+    # Adapter -> Pi USB
+    draw.line([(802, 130), (868, 130), (868, 225), (915, 225)], fill=(234, 88, 12), width=5)
+    draw.text((866, 114), "USB", fill=(234, 88, 12), font=f_wire, anchor="mm")
+    # 5V BEC -> Pi 5V
+    draw.line([(802, 445), (868, 445), (868, 395), (915, 395)], fill=(185, 28, 28), width=5)
+    draw.text((866, 462), "5.0 V", fill=(185, 28, 28), font=f_wire, anchor="mm")
+    # Camera -> Pi USB (routed over bottom-middle cleanly)
+    draw.line([(366, 260), (425, 260), (425, 540), (885, 540), (885, 285), (915, 285)], fill=(22, 163, 74), width=4)
+    draw.text((645, 526), "USB Camera -> Pi OTG Hub", fill=(22, 163, 74), font=f_wire, anchor="mm")
+    # IMU + Button -> Pi GPIO (routed cleanly underneath)
+    draw.line([(366, 388), (408, 388), (408, 565), (900, 565), (900, 335), (915, 335)], fill=(124, 58, 237), width=4)
+    draw.line([(366, 515), (408, 515)], fill=(202, 138, 4), width=4)
+    draw.text((645, 580), "I2C (GPIO 2/3) + Button (GPIO 17) + LED/Buzzer (GPIO 27)", fill=(100, 60, 180), font=f_wire, anchor="mm")
+
+    # Safety banner
+    draw.rounded_rectangle([32, 622, 1245, 676], radius=8, fill=(254, 249, 195), outline=(202, 138, 4), width=2)
+    draw.text((638, 649), "SAFETY: Never connect 7.4 V LiPo directly to the Raspberry Pi! Always step down to 5.0 V through the BEC.", fill=(113, 63, 18), font=f_warn, anchor="mm")
+
+    out = _frame_figure(
+        img,
+        "Figure 4.2 - Portable Wireless Mode (Raspberry Pi Zero 2W + 2S LiPo + 5V BEC + IMU + Button)",
+    )
+    out.save(IMG_DIR / "07c_portable_wiring.png")
 
 
 def make_06_spring():
@@ -434,5 +541,6 @@ if __name__ == "__main__":
     make_06_spring()
     make_07_camera()
     make_07b_wiring()
+    make_07c_portable_wiring()
     make_09_operation()
     print("Generated all Sourccey-manual style assembly figures in", IMG_DIR)

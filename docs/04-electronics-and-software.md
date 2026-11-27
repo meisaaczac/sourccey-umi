@@ -46,17 +46,31 @@ python space/app.py    # opens http://localhost:7860
    ```
    An example `cfg.json` lives in `build_episode.CFG_EXAMPLE`. Because the Sourccey arm has 5 joints, the script logs per-frame position/orientation error and marks unreachable frames as invalid.
 
-4. **Export to LeRobot (and optionally push to Hugging Face Hub):**
+4. **Export to LeRobot with latency matching, relative EE actions, and QC gate:**
    ```bash
    python software/grabette_lerobot.py to-lerobot \
      --eps ep001 \
      --out lerobot_sourccey \
      --task "pick up the red block" \
+     --action-latency-ms 60 \
+     --enforce-qc \
      --repo-id <your-hf-user>/sourccey-umi-demo \
      --push-to-hub
    ```
 
-5. **Optional: Export to Pollen Grabette's raw episode layout** (`raw_video.mp4`, `frame_timestamps.json`, `angle_data.json`, `frames.json`, `metadata.json`):
+5. **Bimanual (Dual-Arm) recording:** daisy-chain left (`ID 6`) and right (`ID 16`) STS3215 servos on the same bus adapter:
+   ```bash
+   python software/record_bimanual.py --out ep_bi001 --port /dev/ttyACM0 --id-left 6 --id-right 16 --cam-left 0 --cam-right 2 --seconds 30
+   ```
+
+6. **Portable Raspberry Pi Zero 2W node (BNO085/MPU6050 IMU + GPIO 17 button + GPIO 27 LED/buzzer):**
+   ```bash
+   python software/portable_node.py --out-dir ~/umi_sessions/ep001 --imu bno085
+   ```
+
+7. **Train ACT or Diffusion Policy:** see [`policy/README.md`](../policy/README.md) (`python policy/train_lerobot.py --dataset <repo_id> --policy act`).
+
+8. **Optional: Export to Pollen Grabette's raw episode layout** (`raw_video.mp4`, `frame_timestamps.json`, `angle_data.json`, `frames.json`, `metadata.json`):
    ```bash
    python software/grabette_lerobot.py to-grabette --ep ep001 --out grabette_ep001 --hand left
    ```
@@ -68,4 +82,5 @@ python software/test_software.py           # fake servo reader + IK round trip
 python software/test_pipeline.py           # simulated recorder, video sync, and episode build
 python software/test_grabette_lerobot.py   # Grabette angle adapter + Grabette/LeRobot exporters
 python software/test_mono_slam.py          # single-camera monocular SLAM (ArUco metric anchor + ORB VO)
+python software/test_v2_features.py        # bimanual, latency matching, relative EE, QC gate, portable Pi node
 ```

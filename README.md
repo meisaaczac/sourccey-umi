@@ -34,7 +34,8 @@ Most handheld UMI grippers have a mismatch between what you hold in your hand an
 - **Same servo as the encoder:** uses the Sourccey's Feetech STS3215 with torque turned off (0.088° resolution), so the angle you read is literally the robot's `gripper` joint (`-5°` closed to `60°` open).
 - **Same wrist camera:** uses just the Sourccey's 20x20 mm camera sitting behind the Ø25 mm side wing, keeping the exact same view of the jaws.
 - **Only two extra printed parts:** a pistol grip (bolts onto the 5-hole wrist face) and a trigger lever (bolts onto the 4-hole cross on the finger). Both LEFT and RIGHT files are included.
-- **Web app + LeRobot export (`space/`):** a Gradio dashboard and Hugging Face Space inspired by [Pollen Robotics Grabette](https://github.com/pollen-robotics/grabette) to record sessions, run monocular SLAM + 5-DoF IK, export a [LeRobot](https://github.com/huggingface/lerobot) dataset, and open it in the [LeRobot Visualizer](https://huggingface.co/spaces/lerobot/visualize_dataset).
+- **Web app + LeRobot export (`space/` & `policy/`):** a Gradio dashboard and Hugging Face Space inspired by [Pollen Robotics Grabette](https://github.com/pollen-robotics/grabette) to record sessions, run monocular SLAM + 5-DoF IK, apply latency matching + relative end-effector actions + automatic QC filtering, export a [LeRobot](https://github.com/huggingface/lerobot) dataset, open it in the [LeRobot Visualizer](https://huggingface.co/spaces/lerobot/visualize_dataset), and train ACT / Diffusion Policy.
+- **Bimanual & Portable Wireless ready:** supports daisy-chained dual-arm recording (`software/record_bimanual.py`) and an optional Raspberry Pi Zero 2W + 2S LiPo + BNO085 IMU + grip pushbutton portable pack (`software/portable_node.py`).
 
 ---
 
@@ -159,7 +160,8 @@ sourccey-umi/
 ├── BENCH_CHECKLIST.md         # Physical tests to run before real data collection
 ├── cad/                       # Parametric CadQuery source + all print-ready STLs (stl/, stl_sourccey/) & STEPs
 ├── docs/                      # Guides, studio renders, MuJoCo demo video & GIF
-├── software/                  # STS3215 reader, recorder, mono SLAM, 5-DoF IK, Grabette/LeRobot bridge
+├── software/                  # STS3215 reader, single & bimanual recorder, portable Pi node, mono SLAM, 5-DoF IK, LeRobot bridge
+├── policy/                    # Ready-to-run LeRobot ACT / Diffusion Policy training launcher & guide
 ├── space/                     # Sourccey UMI Studio (local web UI + Hugging Face Docker Space)
 ├── tools/                     # Re-downloads & orients Sourccey STLs from Vulcan Robotics upstream
 └── validation/                # 17 automated geometric, mechanical, and software checks
