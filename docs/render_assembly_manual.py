@@ -292,191 +292,120 @@ def make_05_assembled():
 
 
 def make_07b_wiring():
-    """Figure 4.1 - Clean Sourccey-manual style Electronics & Wiring Diagram."""
-    W, H = 1280, 680
-    img = Image.new("RGB", (W, H), (255, 255, 255))
-    draw = ImageDraw.Draw(img)
+    """Figure 4.2 - 3D Real-CAD Bench Mode (Tethered) Wiring Illustration."""
+    xml = _base_header(1280, 720, fovy=28) + """
+    <!-- Left: Assembled Sourccey UMI (exact CAD) -->
+    <body name="umi" pos="-0.115 0.0 0.035">
+      <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
+      <geom type="mesh" mesh="umi_base" material="base_mat"/>
+      <geom type="mesh" mesh="umi_servo" material="servo_mat"/>
+      <body name="hinge" pos="0 0 0">
+        <joint name="q" type="hinge" axis="0 -1 0"/>
+        <geom type="mesh" mesh="umi_finger" material="finger_mat"/>
+        <geom type="mesh" mesh="umi_lever" material="lever_mat"/>
+      </body>
+      <body name="cam" pos="-0.016 0.054 -0.0175" euler="0 1.5708 -0.38">
+        <geom type="mesh" mesh="cam_cad" material="cam_mat"/>
+      </body>
+    </body>
 
-    f_title = get_font(20, bold=True)
-    f_sub = get_font(15, bold=False)
-    f_wire = get_font(15, bold=True)
-    f_warn = get_font(16, bold=True)
+    <!-- Center-right: Real Bus Servo Adapter PCB (100k faces) + 7.4V Power Supply (5k faces) -->
+    <geom type="mesh" pos="0.060 0.020 -0.055" euler="0.45 0 0" mesh="hat_cad" material="pcb_orange"/>
+    <geom type="mesh" pos="0.060 -0.055 -0.095" euler="0.45 0 0" mesh="battery_cad" material="batt_mat"/>
 
-    def box(x0, y0, x1, y1, fill, outline, title, lines):
-        draw.rounded_rectangle([x0, y0, x1, y1], radius=10, fill=fill, outline=outline, width=3)
-        draw.text(((x0 + x1) // 2, y0 + 24), title, fill=(20, 28, 40), font=f_title, anchor="mm")
-        for i, ln in enumerate(lines):
-            draw.text(((x0 + x1) // 2, y0 + 54 + i * 22), ln, fill=(65, 78, 96), font=f_sub, anchor="mm")
+    <!-- 3D Cables: STS3215 3-pin TTL (blue), 7.4V Power (red), Adapter USB (orange), Camera USB (green) -->
+    <geom type="capsule" fromto="-0.140 -0.018 0.012  -0.165 -0.035 -0.045" size="0.0022" material="base_mat"/>
+    <geom type="capsule" fromto="-0.165 -0.035 -0.045  0.025  0.015 -0.050" size="0.0022" material="base_mat"/>
+    <geom type="capsule" fromto=" 0.060 -0.025 -0.075  0.060  0.010 -0.055" size="0.0024" material="spring_mat"/>
+    <geom type="capsule" fromto=" 0.092  0.020 -0.052  0.175  0.020 -0.052" size="0.0022" material="pcb_orange"/>
+    <geom type="capsule" fromto="-0.132  0.052  0.016 -0.170  0.020 -0.085" size="0.0022" material="lever_mat"/>
+    <geom type="capsule" fromto="-0.170  0.020 -0.085  0.175  0.040 -0.085" size="0.0022" material="lever_mat"/>
 
-    # Left: Sourccey UMI Hardware Group
-    draw.rounded_rectangle([38, 92, 412, 540], radius=14, fill=(248, 250, 252), outline=(148, 163, 184), width=2)
-    draw.text((225, 118), "SOURCCEY UMI (HANDHELD)", fill=(51, 65, 85), font=f_wire, anchor="mm")
-
-    box(66, 148, 384, 290, (239, 246, 255), (37, 99, 235), "Feetech STS3215 Servo", [
-        "7.4 V bus servo (ID 6)",
-        "Torque OFF (read-only encoder)",
-        "0.088 deg resolution @ ~200 Hz",
-    ])
-    box(66, 355, 384, 495, (240, 253, 244), (22, 163, 74), "Sourccey 20x20 mm Camera", [
-        "Mounted behind +y Ø25 mm wing",
-        "Standard USB UVC video stream",
-        "Same viewpoint as Sourccey arm",
-    ])
-
-    # Middle: Bus Servo Adapter + 7.4V PSU
-    box(495, 148, 825, 290, (255, 247, 237), (234, 88, 12), "USB Bus Servo Adapter", [
-        "Waveshare Bus Servo Adapter",
-        "or Feetech URT-1 (1 Mbps TTL)",
-        "Bridges 3-pin bus <-> USB",
-    ])
-    box(520, 355, 800, 475, (254, 242, 242), (220, 38, 38), "7.4 V DC Power Supply", [
-        "2S LiPo or 7.4 V bench adapter",
-        "Powers STS3215 encoder",
-        "Check + / - polarity!",
-    ])
-
-    # Right: Host PC / Raspberry Pi
-    box(920, 210, 1235, 430, (241, 245, 249), (30, 41, 59), "PC / Raspberry Pi", [
-        "Runs record_episode.py or",
-        "Sourccey UMI Studio (space/app.py)",
-        "Serial: /dev/ttyACM0 (or COMx)",
-        "Video: USB Camera 0",
-        "Shared monotonic clock sync",
-    ])
-
-    # Wires
-    # 1. STS3215 <-> Adapter (3-pin TTL bus)
-    draw.line([(384, 218), (495, 218)], fill=(37, 99, 235), width=5)
-    draw.text((440, 198), "3-pin Bus", fill=(37, 99, 235), font=f_wire, anchor="mm")
-    draw.text((440, 236), "(TTL)", fill=(71, 85, 105), font=f_sub, anchor="mm")
-
-    # 2. 7.4V PSU -> Adapter (Red/Black power)
-    draw.line([(652, 355), (652, 290)], fill=(220, 38, 38), width=5)
-    draw.line([(668, 355), (668, 290)], fill=(30, 41, 59), width=5)
-    draw.text((748, 322), "7.4 V (+ / GND)", fill=(220, 38, 38), font=f_wire, anchor="mm")
-
-    # 3. Adapter -> PC (USB-C)
-    draw.line([(825, 218), (875, 218), (875, 285), (920, 285)], fill=(234, 88, 12), width=5)
-    draw.text((872, 200), "USB", fill=(234, 88, 12), font=f_wire, anchor="mm")
-
-    # 4. Wrist Camera -> PC (USB direct, routed cleanly along bottom)
-    draw.line([(384, 495), (384, 520), (875, 520), (875, 375), (920, 375)], fill=(22, 163, 74), width=5)
-    draw.text((640, 504), "USB Cable (route with zip ties down rear of pistol grip)", fill=(22, 163, 74), font=f_wire, anchor="mm")
-
-    # Safety callout banner at bottom
-    draw.rounded_rectangle([38, 575, 1235, 635], radius=8, fill=(254, 249, 195), outline=(202, 138, 4), width=2)
-    draw.text((636, 605), "IMPORTANT: Power STS3215 with 7.4 V via the bus adapter (USB 5 V alone will not power the encoder). Keep torque OFF.", fill=(113, 63, 18), font=f_warn, anchor="mm")
-
+    <camera name="cam" pos="0.04 -0.44 0.14" xyaxes="1 0 0 0 0.36 0.93"/>
+  </worldbody></mujoco>"""
+    im = _render_tech_view(xml, 1280, 720, qpos=[math.radians(30.0)])
+    d = ImageDraw.Draw(im)
+    f = get_font(18, bold=True)
+    callouts = [
+        ((415, 115), (345, 215), "Sourccey UMI (STS3215 ID 6 + 20x20 Cam)", (37, 99, 235)),
+        ((790, 185), (785, 395), "USB Bus Servo Adapter (Waveshare / URT-1)", (215, 95, 15)),
+        ((870, 325), (1055, 420), "USB Data -> Host PC (/dev/ttyACM0)", (215, 95, 15)),
+        ((870, 445), (1055, 495), "20x20 mm Camera USB -> Host PC (Cam 0)", (22, 130, 65)),
+        ((760, 585), (785, 535), "7.4 V DC Supply (required for STS3215 encoder)", (195, 35, 35)),
+        ((95, 560), (490, 440), "3-pin TTL Bus Cable", (37, 99, 235)),
+    ]
+    for (tx, ty), (px, py), label, col in callouts:
+        ex = tx + int(d.textlength(label, font=f)) + 8 if tx < 350 else tx - 10
+        d.line([(ex, ty + 10), (px, py)], fill=col, width=2)
+        d.ellipse([px - 4, py - 4, px + 4, py + 4], fill=col)
+        d.text((tx, ty), label, fill=col, font=f)
     out = _frame_figure(
-        img,
-        "Figure 4.1 - Bench Mode (Tethered) Electronics & Wiring Diagram",
+        im,
+        "Figure 4.2 - Bench Mode (Tethered) Real-CAD Wiring Setup (STS3215 + 7.4V + 20x20 mm Camera -> PC)",
+        ["(1) USB Bus Adapter", "(1) 7.4V Supply", "(2) USB Cables"],
     )
     out.save(IMG_DIR / "07b_wiring.png")
 
 
 def make_07c_portable_wiring():
-    """Figure 4.2 - Portable Wireless Mode (Raspberry Pi Zero 2W + 2S LiPo + BNO085 IMU + Pushbutton)."""
-    W, H = 1280, 720
-    img = Image.new("RGB", (W, H), (255, 255, 255))
-    draw = ImageDraw.Draw(img)
+    """Figure 4.3 - 3D Real-CAD Portable Wireless Mode (UMI + Pi Zero 2W + 2S LiPo + Adapter + IMU + Button)."""
+    xml = _base_header(1280, 720, fovy=28) + """
+    <!-- Left: Assembled Sourccey UMI with real IMU + Button + Camera CAD -->
+    <body name="umi" pos="-0.130 0.0 0.035">
+      <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
+      <geom type="mesh" mesh="umi_base" material="base_mat"/>
+      <geom type="mesh" mesh="umi_servo" material="servo_mat"/>
+      <geom type="mesh" pos="-0.052 -0.028 -0.008" mesh="imu_cad" material="pcb_purple"/>
+      <geom type="mesh" pos="-0.064 -0.037 -0.046" euler="0 -1.5708 0" mesh="button_cad" material="btn_mat"/>
+      <body name="hinge" pos="0 0 0">
+        <joint name="q" type="hinge" axis="0 -1 0"/>
+        <geom type="mesh" mesh="umi_finger" material="finger_mat"/>
+        <geom type="mesh" mesh="umi_lever" material="lever_mat"/>
+      </body>
+      <body name="cam" pos="-0.016 0.054 -0.0175" euler="0 1.5708 -0.38">
+        <geom type="mesh" mesh="cam_cad" material="cam_mat"/>
+      </body>
+    </body>
 
-    f_title = get_font(19, bold=True)
-    f_sub = get_font(14, bold=False)
-    f_wire = get_font(14, bold=True)
-    f_warn = get_font(15, bold=True)
+    <!-- Right: Portable Belt Pack (Real Pi Zero 2W + Real Adapter/5V Board + Real 2S LiPo Battery) -->
+    <geom type="mesh" pos="0.085  0.035 -0.015" euler="0.55 0 0" mesh="pi_zero_cad" material="pcb_green"/>
+    <geom type="mesh" pos="0.085 -0.015 -0.055" euler="0.55 0 0" mesh="hat_cad" material="pcb_orange"/>
+    <geom type="mesh" pos="0.085 -0.075 -0.105" euler="0.55 0 0" mesh="battery_cad" material="batt_mat"/>
 
-    def box(x0, y0, x1, y1, fill, outline, title, lines):
-        draw.rounded_rectangle([x0, y0, x1, y1], radius=10, fill=fill, outline=outline, width=3)
-        draw.text(((x0 + x1) // 2, y0 + 22), title, fill=(20, 28, 40), font=f_title, anchor="mm")
-        for i, ln in enumerate(lines):
-            draw.text(((x0 + x1) // 2, y0 + 50 + i * 20), ln, fill=(65, 78, 96), font=f_sub, anchor="mm")
+    <!-- 3D Interconnect Cables -->
+    <!-- Blue: STS3215 3-pin TTL -> Adapter -->
+    <geom type="capsule" fromto="-0.165 -0.025 -0.035   0.050 -0.015 -0.052" size="0.0022" material="base_mat"/>
+    <!-- Purple: IMU I2C + Button GPIO -> Pi Zero 2W -->
+    <geom type="capsule" fromto="-0.180 -0.028  0.025   0.050  0.035 -0.010" size="0.0020" material="pcb_purple"/>
+    <!-- Green: 20x20 Camera USB -> Pi OTG Hub -->
+    <geom type="capsule" fromto="-0.145  0.050  0.016   0.050  0.042 -0.020" size="0.0020" material="lever_mat"/>
+    <!-- Red: 2S LiPo 7.4V -> Adapter & 5V UBEC -> Pi -->
+    <geom type="capsule" fromto=" 0.085 -0.045 -0.085   0.085 -0.020 -0.058" size="0.0024" material="spring_mat"/>
+    <geom type="capsule" fromto=" 0.095 -0.010 -0.050   0.095  0.025 -0.018" size="0.0022" material="pcb_orange"/>
 
-    # Left: On-Grip Hardware
-    draw.rounded_rectangle([32, 34, 388, 595], radius=14, fill=(248, 250, 252), outline=(148, 163, 184), width=2)
-    draw.text((210, 56), "ON-GRIP HARDWARE (HANDHELD)", fill=(51, 65, 85), font=f_wire, anchor="mm")
-
-    box(54, 78, 366, 184, (239, 246, 255), (37, 99, 235), "Feetech STS3215 Servo", [
-        "ID 6 (Left) / daisy-chain ID 16 (Right)",
-        "7.4 V bus, torque OFF (~50 mA)",
-    ])
-    box(54, 206, 366, 312, (240, 253, 244), (22, 163, 74), "Sourccey 20x20 mm Camera", [
-        "Behind +y Ø25 mm wing opening",
-        "USB OTG -> Pi Zero 2W",
-    ])
-    box(54, 334, 366, 440, (245, 243, 255), (124, 58, 237), "BNO085 / MPU6050 IMU", [
-        "I2C (/dev/i2c-1: SDA/SCL + 3.3V/GND)",
-        "100 Hz accel + gyro for VIO",
-    ])
-    box(54, 462, 366, 568, (254, 249, 195), (202, 138, 4), "Pushbutton + LED / Buzzer", [
-        "Record button: GPIO 17 -> GND",
-        "Status LED/Buzzer: GPIO 27 -> GND",
-    ])
-
-    # Middle: Power Pack (2S LiPo + 5V BEC + Bus Adapter)
-    draw.rounded_rectangle([465, 34, 825, 595], radius=14, fill=(255, 251, 245), outline=(234, 88, 12), width=2)
-    draw.text((645, 56), "POWER & BUS PACK (BELT / WRIST)", fill=(154, 52, 18), font=f_wire, anchor="mm")
-
-    box(488, 78, 802, 192, (255, 247, 237), (234, 88, 12), "USB Bus Servo Adapter", [
-        "Waveshare / Feetech URT-1",
-        "7.4 V in -> powers STS3215 bus",
-        "USB data -> Pi Zero 2W",
-    ])
-    box(488, 232, 802, 348, (254, 242, 242), (220, 38, 38), "2S LiPo Battery (7.4 V)", [
-        "e.g. 1000-2200 mAh 2S + switch",
-        "Feeds Bus Adapter directly (7.4 V)",
-        "Feeds 5V BEC input",
-    ])
-    box(488, 388, 802, 502, (254, 242, 242), (185, 28, 28), "5V 3A Buck / UBEC", [
-        "Steps 7.4 V down to clean 5.0 V",
-        "Powers Raspberry Pi Zero 2W",
-        "Common GND with battery",
-    ])
-
-    # Right: Raspberry Pi Zero 2W
-    box(915, 165, 1245, 455, (241, 245, 249), (30, 41, 59), "Raspberry Pi Zero 2W", [
-        "Runs record_episode.py +",
-        "portable_node.py over Wi-Fi",
-        "2-port Micro-USB OTG Hub:",
-        "  - USB Bus Servo Adapter",
-        "  - 20x20 mm Wrist Camera",
-        "GPIO Header:",
-        "  - I2C1 (GPIO 2/3) -> IMU",
-        "  - GPIO 17 -> Record Button",
-        "  - GPIO 27 -> LED / Buzzer",
-        "Syncs episodes to HF / Studio",
-    ])
-
-    # Wiring lines
-    # STS3215 -> Adapter
-    draw.line([(366, 130), (488, 130)], fill=(37, 99, 235), width=5)
-    draw.text((427, 114), "3-pin TTL", fill=(37, 99, 235), font=f_wire, anchor="mm")
-    # 2S LiPo -> Adapter (7.4V)
-    draw.line([(645, 232), (645, 192)], fill=(220, 38, 38), width=5)
-    draw.text((708, 212), "7.4 V", fill=(220, 38, 38), font=f_wire, anchor="mm")
-    # 2S LiPo -> 5V BEC
-    draw.line([(645, 348), (645, 388)], fill=(220, 38, 38), width=5)
-    draw.text((708, 368), "7.4 V", fill=(220, 38, 38), font=f_wire, anchor="mm")
-    # Adapter -> Pi USB
-    draw.line([(802, 130), (868, 130), (868, 225), (915, 225)], fill=(234, 88, 12), width=5)
-    draw.text((866, 114), "USB", fill=(234, 88, 12), font=f_wire, anchor="mm")
-    # 5V BEC -> Pi 5V
-    draw.line([(802, 445), (868, 445), (868, 395), (915, 395)], fill=(185, 28, 28), width=5)
-    draw.text((866, 462), "5.0 V", fill=(185, 28, 28), font=f_wire, anchor="mm")
-    # Camera -> Pi USB (routed over bottom-middle cleanly)
-    draw.line([(366, 260), (425, 260), (425, 540), (885, 540), (885, 285), (915, 285)], fill=(22, 163, 74), width=4)
-    draw.text((645, 526), "USB Camera -> Pi OTG Hub", fill=(22, 163, 74), font=f_wire, anchor="mm")
-    # IMU + Button -> Pi GPIO (routed cleanly underneath)
-    draw.line([(366, 388), (408, 388), (408, 565), (900, 565), (900, 335), (915, 335)], fill=(124, 58, 237), width=4)
-    draw.line([(366, 515), (408, 515)], fill=(202, 138, 4), width=4)
-    draw.text((645, 580), "I2C (GPIO 2/3) + Button (GPIO 17) + LED/Buzzer (GPIO 27)", fill=(100, 60, 180), font=f_wire, anchor="mm")
-
-    # Safety banner
-    draw.rounded_rectangle([32, 622, 1245, 676], radius=8, fill=(254, 249, 195), outline=(202, 138, 4), width=2)
-    draw.text((638, 649), "SAFETY: Never connect 7.4 V LiPo directly to the Raspberry Pi! Always step down to 5.0 V through the BEC.", fill=(113, 63, 18), font=f_warn, anchor="mm")
-
+    <camera name="cam" pos="0.01 -0.46 0.14" xyaxes="1 0 0 0 0.34 0.94"/>
+  </worldbody></mujoco>"""
+    im = _render_tech_view(xml, 1280, 720, qpos=[math.radians(30.0)])
+    d = ImageDraw.Draw(im)
+    f = get_font(18, bold=True)
+    callouts = [
+        ((480, 120), (545, 290), "I2C (IMU) + GPIO 17/27 (Button/LED) + Cam USB -> Pi", (109, 40, 217)),
+        ((900, 195), (840, 285), "Raspberry Pi Zero 2W (Wi-Fi)", (22, 130, 65)),
+        ((900, 355), (845, 400), "Bus Servo Adapter + 5V 3A UBEC", (215, 95, 15)),
+        ((900, 540), (850, 535), "2S LiPo Battery (7.4 V)", (195, 35, 35)),
+        ((80, 560), (520, 415), "STS3215 3-pin TTL Bus (7.4 V)", (37, 99, 235)),
+    ]
+    for (tx, ty), (px, py), label, col in callouts:
+        ex = tx + int(d.textlength(label, font=f)) + 8 if tx < 450 else tx - 10
+        d.line([(ex, ty + 10), (px, py)], fill=col, width=2)
+        d.ellipse([px - 4, py - 4, px + 4, py + 4], fill=col)
+        d.text((tx, ty), label, fill=col, font=f)
+    d.rounded_rectangle([40, 650, 1240, 698], radius=8, fill=(254, 249, 195), outline=(202, 138, 4), width=2)
+    d.text((640, 674), "SAFETY: Never connect 7.4 V LiPo directly to the Raspberry Pi! Always step down to 5.0 V through the UBEC.", fill=(113, 63, 18), font=get_font(16, bold=True), anchor="mm")
     out = _frame_figure(
-        img,
-        "Figure 4.3 - Portable Wireless Mode (Raspberry Pi Zero 2W + 2S LiPo + 5V BEC + IMU + Button)",
+        im,
+        "Figure 4.3 - Portable Wireless Mode Real-CAD Setup (UMI + IMU + Button -> Pi Zero 2W + 2S LiPo Pack)",
+        ["Pi Zero 2W + 2S LiPo", "5V 3A UBEC + OTG Hub"],
     )
     out.save(IMG_DIR / "07c_portable_wiring.png")
 
@@ -674,61 +603,73 @@ def make_07f_portable_pack_3d():
 
 
 def make_07g_bimanual_wiring():
-    """Figure 4.6 - Bimanual (Dual-Arm) Daisy-Chain Wiring Diagram."""
-    W, H = 1280, 560
-    img = Image.new("RGB", (W, H), (255, 255, 255))
-    draw = ImageDraw.Draw(img)
-    ft = get_font(19, bold=True)
-    fs = get_font(14, bold=False)
-    fw = get_font(14, bold=True)
+    """Figure 4.6 - 3D Real-CAD Bimanual (Dual-Arm) Daisy-Chain Setup."""
+    xml = _base_header(1280, 720, fovy=30) + """
+    <!-- LEFT Sourccey UMI (ID 6) -->
+    <body name="umi_left" pos="-0.155 0.035 0.040">
+      <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
+      <geom type="mesh" mesh="umi_base" material="base_mat"/>
+      <geom type="mesh" mesh="umi_servo" material="servo_mat"/>
+      <body name="hinge_l" pos="0 0 0">
+        <joint name="ql" type="hinge" axis="0 -1 0"/>
+        <geom type="mesh" mesh="umi_finger" material="finger_mat"/>
+        <geom type="mesh" mesh="umi_lever" material="lever_mat"/>
+      </body>
+      <body name="cam_l" pos="-0.016 0.054 -0.0175" euler="0 1.5708 -0.38">
+        <geom type="mesh" mesh="cam_cad" material="cam_mat"/>
+      </body>
+    </body>
 
-    def box(x0, y0, x1, y1, fill, outl, title, lines):
-        draw.rounded_rectangle([x0, y0, x1, y1], radius=10, fill=fill, outline=outl, width=3)
-        draw.text(((x0 + x1) // 2, y0 + 24), title, fill=(20, 28, 40), font=ft, anchor="mm")
-        for i, ln in enumerate(lines):
-            draw.text(((x0 + x1) // 2, y0 + 52 + i * 21), ln, fill=(65, 78, 96), font=fs, anchor="mm")
+    <!-- RIGHT Sourccey UMI (ID 16) -->
+    <body name="umi_right" pos="0.015 0.035 0.040">
+      <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
+      <geom type="mesh" mesh="umi_base" material="base_mat"/>
+      <geom type="mesh" mesh="umi_servo" material="servo_mat"/>
+      <body name="hinge_r" pos="0 0 0">
+        <joint name="qr" type="hinge" axis="0 -1 0"/>
+        <geom type="mesh" mesh="umi_finger" material="finger_mat"/>
+        <geom type="mesh" mesh="umi_lever" material="lever_mat"/>
+      </body>
+      <body name="cam_r" pos="-0.016 0.054 -0.0175" euler="0 1.5708 -0.38">
+        <geom type="mesh" mesh="cam_cad" material="cam_mat"/>
+      </body>
+    </body>
 
-    box(40, 60, 350, 200, (239, 246, 255), (37, 99, 235), "LEFT Sourccey UMI", [
-        "STS3215 Servo: ID 6 (torque OFF)",
-        "20x20 mm Wrist Camera: Cam 0",
-        "cad/stl/*_LEFT.stl",
-    ])
-    box(40, 300, 350, 440, (240, 253, 244), (22, 163, 74), "RIGHT Sourccey UMI", [
-        "STS3215 Servo: ID 16 (torque OFF)",
-        "20x20 mm Wrist Camera: Cam 2",
-        "cad/stl/*_RIGHT.stl",
-    ])
-    box(490, 95, 810, 235, (255, 247, 237), (234, 88, 12), "SINGLE Bus Servo Adapter", [
-        "Waveshare / Feetech URT-1",
-        "Polls ID 6 + ID 16 on same port",
-        "Powered by 7.4 V DC / 2S LiPo",
-    ])
-    box(910, 155, 1240, 365, (241, 245, 249), (30, 41, 59), "Host PC / Raspberry Pi", [
-        "python software/record_bimanual.py",
-        "--port /dev/ttyACM0",
-        "--id-left 6 --id-right 16",
-        "--cam-left 0 --cam-right 2",
-        "1 shared monotonic clock!",
-    ])
+    <!-- Single Shared Bus Servo Adapter + 7.4V Supply (right) -->
+    <geom type="mesh" pos="0.165 0.015 -0.045" euler="0.50 0 0" mesh="hat_cad" material="pcb_orange"/>
+    <geom type="mesh" pos="0.165 -0.055 -0.095" euler="0.50 0 0" mesh="battery_cad" material="batt_mat"/>
 
-    # Daisy-chain 3-pin bus: Right -> Left -> Adapter
-    draw.line([(195, 300), (195, 200)], fill=(37, 99, 235), width=5)
-    draw.text((280, 250), "3-pin Daisy-Chain", fill=(37, 99, 235), font=fw, anchor="mm")
-    draw.line([(350, 145), (490, 145)], fill=(37, 99, 235), width=5)
-    draw.text((420, 126), "3-pin Bus", fill=(37, 99, 235), font=fw, anchor="mm")
-    # Adapter -> PC
-    draw.line([(810, 165), (860, 165), (860, 220), (910, 220)], fill=(234, 88, 12), width=5)
-    draw.text((860, 148), "USB", fill=(234, 88, 12), font=fw, anchor="mm")
-    # Cam 0 & Cam 2 -> PC
-    draw.line([(350, 185), (430, 185), (430, 275), (910, 275)], fill=(22, 163, 74), width=4)
-    draw.text((640, 260), "Left Camera USB (Cam 0)", fill=(22, 163, 74), font=fw, anchor="mm")
-    draw.line([(350, 370), (860, 370), (860, 325), (910, 325)], fill=(16, 130, 90), width=4)
-    draw.text((640, 355), "Right Camera USB (Cam 2)", fill=(16, 130, 90), font=fw, anchor="mm")
+    <!-- Daisy-chain 3-pin TTL bus: Left (ID 6) -> Right (ID 16) -> Single Adapter -->
+    <geom type="capsule" fromto="-0.195 0.010 -0.045  -0.020 0.010 -0.045" size="0.0024" material="base_mat"/>
+    <geom type="capsule" fromto="-0.020 0.010 -0.045   0.130 0.010 -0.045" size="0.0024" material="base_mat"/>
+    <!-- 7.4V Power -->
+    <geom type="capsule" fromto=" 0.165 -0.025 -0.075  0.165 0.005 -0.048" size="0.0024" material="spring_mat"/>
+    <!-- Both Camera USB cables -->
+    <geom type="capsule" fromto="-0.170 0.085  0.020  -0.170 0.085 -0.095" size="0.0020" material="lever_mat"/>
+    <geom type="capsule" fromto=" 0.000 0.085  0.020   0.000 0.085 -0.095" size="0.0020" material="lever_mat"/>
 
-    draw.rounded_rectangle([40, 475, 1240, 528], radius=8, fill=(239, 246, 255), outline=(37, 99, 235), width=2)
-    draw.text((640, 502), "TIP: Set unique servo IDs (ID 6 Left, ID 16 Right) one-by-one BEFORE daisy-chaining both servos together.", fill=(30, 58, 138), font=fw, anchor="mm")
-
-    out = _frame_figure(img, "Figure 4.6 - Bimanual (Dual-Arm) Daisy-Chain Setup Sharing One Bus Servo Adapter")
+    <camera name="cam" pos="0.01 -0.52 0.15" xyaxes="1 0 0 0 0.34 0.94"/>
+  </worldbody></mujoco>"""
+    im = _render_tech_view(xml, 1280, 720, qpos=[math.radians(32.0), math.radians(24.0)])
+    d = ImageDraw.Draw(im)
+    f = get_font(18, bold=True)
+    callouts = [
+        ((70, 120), (315, 250), "LEFT UMI (STS3215 ID 6 + Cam 0)", (37, 99, 235)),
+        ((470, 120), (650, 250), "RIGHT UMI (STS3215 ID 16 + Cam 2)", (22, 130, 65)),
+        ((870, 225), (965, 425), "SINGLE Bus Adapter (ID 6 + ID 16)", (215, 95, 15)),
+        ((870, 565), (965, 550), "7.4 V Power Supply", (195, 35, 35)),
+        ((95, 575), (465, 445), "3-pin Daisy-Chain Bus Cable (ID 6 <-> ID 16)", (37, 99, 235)),
+    ]
+    for (tx, ty), (px, py), label, col in callouts:
+        ex = tx + int(d.textlength(label, font=f)) + 8 if tx < 450 else tx - 10
+        d.line([(ex, ty + 10), (px, py)], fill=col, width=2)
+        d.ellipse([px - 4, py - 4, px + 4, py + 4], fill=col)
+        d.text((tx, ty), label, fill=col, font=f)
+    out = _frame_figure(
+        im,
+        "Figure 4.6 - Bimanual (Dual-Arm) Daisy-Chain Setup Sharing One Bus Servo Adapter",
+        ["LEFT: ID 6 + Cam 0", "RIGHT: ID 16 + Cam 2"],
+    )
     out.save(IMG_DIR / "07g_bimanual_wiring.png")
 
 
