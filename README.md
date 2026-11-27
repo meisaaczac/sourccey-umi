@@ -76,6 +76,25 @@ flowchart LR
 
 ---
 
+## Sourccey UMI Studio (Web App & HF Space)
+
+A local Gradio dashboard and Hugging Face Space ([`space/`](space/README.md)) modeled after Pollen Robotics' `grabette-fleet` and `grabette-slam`, built for the single 20x20 mm camera + STS3215 setup.
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/img/10_studio_record.png" alt="Sourccey UMI Studio - Record & Sessions"/>
+      <br><sub><b>Tab 1:</b> Create tasks, record from USB cam + STS3215, or import episode ZIPs</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/img/11_studio_build.png" alt="Sourccey UMI Studio - Build LeRobot Dataset"/>
+      <br><sub><b>Tab 2:</b> Run Monocular SLAM + 5-DoF IK, build LeRobot dataset, and open in Visualizer</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
 ## Current Status
 
 | Part | Status | Notes |
