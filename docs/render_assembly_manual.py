@@ -68,6 +68,37 @@ def _render_tech_view(xml: str, w: int = 1280, h: int = 760, qpos=None) -> Image
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
 
 
+def ensure_electronics_cad():
+    """Center and copy real open-source electronics CAD STLs (from Grabette Apache-2.0) into UMI_MESH_DIR."""
+    import trimesh
+    grab_root = ROOT / ".cache" / "grabette"
+    specs = [
+        ("pi_zero_cad.stl", "rasp_pi_0_2w__configuration_default.stl", 1.0, (90, 0, 0)),
+        ("battery_cad.stl", "pisugar3plus.stl", 1.0, (90, 0, 0)),
+        ("hat_cad.stl", "ase01187_elec_rpi_hat.stl", 1.0, (0, 0, 0)),
+        ("imu_cad.stl", "sensor.stl", 1.0, (0, 0, 0)),
+        ("button_cad.stl", "Button.stl", 1.0, (0, 0, 0)),
+        ("cam_cad.stl", "arducam_fisheye.stl", 20.0 / 36.0, (0, 0, 0)),
+    ]
+    for dst_name, src_name, scale, rot_deg in specs:
+        dst = UMI_MESH_DIR / dst_name
+        matches = list(grab_root.rglob(src_name))
+        if not matches:
+            raise FileNotFoundError(f"Missing real CAD mesh {src_name} in {grab_root}")
+        m = trimesh.load(matches[0])
+        if scale != 1.0:
+            m.apply_scale(scale)
+        if any(rot_deg):
+            from scipy.spatial.transform import Rotation as Rot
+            T = np.eye(4)
+            T[:3, :3] = Rot.from_euler("xyz", rot_deg, degrees=True).as_matrix()
+            m.apply_transform(T)
+        # Center XY and rest bottom at z = 0
+        b = m.bounds
+        m.apply_translation([-(b[0][0] + b[1][0]) / 2.0, -(b[0][1] + b[1][1]) / 2.0, -b[0][2]])
+        m.export(dst)
+
+
 def _base_header(w=1280, h=760, fovy=32):
     mesh_dir = str(UMI_MESH_DIR).replace("\\", "/")
     return f"""
@@ -89,8 +120,13 @@ def _base_header(w=1280, h=760, fovy=32):
     <material name="brass_mat" rgba="0.86 0.66 0.22 1" roughness="0.25" specular="0.65"/>
     <material name="steel_mat" rgba="0.62 0.66 0.72 1" roughness="0.25" specular="0.65"/>
     <material name="spring_mat" rgba="0.85 0.18 0.18 1" roughness="0.35" specular="0.30"/>
-    <material name="cam_mat" rgba="0.14 0.16 0.20 1" roughness="0.35" specular="0.35"/>
+    <material name="cam_mat" rgba="0.18 0.20 0.24 1" roughness="0.35" specular="0.35"/>
     <material name="lens_mat" rgba="0.06 0.12 0.28 1" roughness="0.10" specular="0.90"/>
+    <material name="pcb_green" rgba="0.16 0.56 0.30 1" roughness="0.40" specular="0.25"/>
+    <material name="pcb_purple" rgba="0.44 0.24 0.76 1" roughness="0.40" specular="0.25"/>
+    <material name="pcb_orange" rgba="0.88 0.44 0.14 1" roughness="0.40" specular="0.25"/>
+    <material name="batt_mat" rgba="0.82 0.22 0.20 1" roughness="0.42" specular="0.25"/>
+    <material name="btn_mat" rgba="0.92 0.72 0.10 1" roughness="0.40" specular="0.25"/>
     <material name="guide_mat" rgba="0.35 0.40 0.48 0.9"/>
 
     <mesh name="umi_base" file="umi_base.stl"/>
@@ -98,6 +134,12 @@ def _base_header(w=1280, h=760, fovy=32):
     <mesh name="umi_servo" file="umi_servo.stl"/>
     <mesh name="umi_grip" file="umi_grip.stl"/>
     <mesh name="umi_lever" file="umi_lever.stl"/>
+    <mesh name="pi_zero_cad" file="pi_zero_cad.stl"/>
+    <mesh name="battery_cad" file="battery_cad.stl"/>
+    <mesh name="hat_cad" file="hat_cad.stl"/>
+    <mesh name="imu_cad" file="imu_cad.stl"/>
+    <mesh name="button_cad" file="button_cad.stl"/>
+    <mesh name="cam_cad" file="cam_cad.stl"/>
   </asset>
   <worldbody>
     <light pos="0.5 -0.6 0.8" dir="-0.4 0.5 -0.7" diffuse="0.52 0.52 0.52" specular="0.15 0.15 0.15" castshadow="false"/>
@@ -486,12 +528,12 @@ def make_07d_cable_routing():
       <geom type="mesh" mesh="umi_lever" material="ctx_mat"/>
     </body>
 
-    <!-- BNO085 IMU mounted flat on top of the grip beam -->
-    <geom type="box" pos="-0.052 -0.028 -0.005" size="0.011 0.009 0.0025" rgba="0.48 0.22 0.85 1"/>
+    <!-- Real I2C IMU Breakout CAD (7.8k faces) mounted flat on top of the grip beam -->
+    <geom type="mesh" pos="-0.052 -0.028 -0.008" mesh="imu_cad" material="pcb_purple"/>
 
-    <!-- Tactile Start/Stop Pushbutton (yellow) + Status LED (red) on upper rear of pistol grip -->
-    <geom type="cylinder" pos="-0.066 -0.037 -0.044" euler="0 1.5708 0" size="0.0055 0.0035" rgba="0.92 0.72 0.08 1"/>
-    <geom type="sphere" pos="-0.066 -0.037 -0.058" size="0.0035" material="spring_mat"/>
+    <!-- Real Tactile Start/Stop Pushbutton CAD on upper rear of pistol grip + Status LED -->
+    <geom type="mesh" pos="-0.064 -0.037 -0.046" euler="0 -1.5708 0" mesh="button_cad" material="btn_mat"/>
+    <geom type="sphere" pos="-0.065 -0.037 -0.060" size="0.0032" material="spring_mat"/>
 
     <!-- 3-pin STS3215 Servo Cable (blue) routing out of base and down rear of pistol grip -->
     <geom type="capsule" fromto="-0.025 -0.015 -0.022  -0.068 -0.030 -0.030" size="0.0022" material="base_mat"/>
@@ -590,54 +632,44 @@ def make_07e_pi_gpio_pinout():
 
 
 def make_07f_portable_pack_3d():
-    """Figure 4.5 - 3D Layout of the Portable Belt/Wrist Electronics Pack."""
-    xml = _base_header(1280, 680, fovy=32) + """
-    <!-- Pack base tray (130 x 95 mm compact belt pouch footprint) -->
-    <geom type="box" pos="0 0 -0.004" size="0.072 0.052 0.004" rgba="0.88 0.90 0.93 1"/>
+    """Figure 4.5 - 100% Real 3D CAD Layout of the Portable Electronics Pack (Pi Zero 2W, LiPo, Adapter HAT, IMU)."""
+    xml = _base_header(1280, 720, fovy=28) + """
+    <!-- Real 5k-face LiPo Battery Pack CAD (left) -->
+    <geom type="mesh" pos="-0.048 0.0 0.0" mesh="battery_cad" material="batt_mat"/>
 
-    <!-- 2S LiPo Battery (7.4V, red/silver brick on left) -->
-    <geom type="box" pos="-0.036 0.012 0.012" size="0.028 0.034 0.012" rgba="0.86 0.22 0.20 1"/>
-    <!-- Main Power Toggle Switch -->
-    <geom type="box" pos="-0.048 -0.034 0.007" size="0.010 0.007 0.007" rgba="0.16 0.18 0.22 1"/>
-    <!-- 5V 3A UBEC Buck Converter (dark red module) -->
-    <geom type="box" pos="-0.012 -0.034 0.006" size="0.016 0.009 0.006" rgba="0.72 0.14 0.14 1"/>
+    <!-- Real 103k-face Raspberry Pi Zero 2W CAD (right-top) -->
+    <geom type="mesh" pos="0.044 0.024 0.0" mesh="pi_zero_cad" material="pcb_green"/>
 
-    <!-- Raspberry Pi Zero 2W (green PCB on right-top) -->
-    <geom type="box" pos="0.030 0.018 0.004" size="0.0325 0.015 0.003" rgba="0.14 0.58 0.28 1"/>
-    <geom type="box" pos="0.030 0.029 0.009" size="0.025 0.0025 0.004" rgba="0.15 0.16 0.18 1"/>
+    <!-- Real 100k-face Bus / Power Adapter Board CAD (right-bottom) -->
+    <geom type="mesh" pos="0.044 -0.024 0.0" mesh="hat_cad" material="pcb_orange"/>
 
-    <!-- USB Bus Servo Adapter (orange/blue PCB right-bottom) -->
-    <geom type="box" pos="0.036 -0.018 0.005" size="0.021 0.013 0.005" rgba="0.92 0.45 0.12 1"/>
-    <!-- Micro-USB OTG Hub (compact dark gray bar) -->
-    <geom type="box" pos="0.036 -0.040 0.005" size="0.022 0.006 0.005" rgba="0.22 0.24 0.28 1"/>
+    <!-- Real 7.8k-face IMU Breakout CAD + Real Pushbutton CAD (front-center) -->
+    <geom type="mesh" pos="-0.005 -0.048 0.0" mesh="imu_cad" material="pcb_purple"/>
+    <geom type="mesh" pos="-0.038 -0.048 0.0" mesh="button_cad" material="btn_mat"/>
 
-    <!-- Interconnect wires -->
-    <geom type="capsule" fromto="-0.048 -0.020 0.012  -0.048 -0.030 0.008" size="0.0018" material="spring_mat"/>
-    <geom type="capsule" fromto="-0.038 -0.034 0.007  -0.026 -0.034 0.007" size="0.0018" material="spring_mat"/>
-    <geom type="capsule" fromto=" 0.004 -0.034 0.007   0.015 -0.018 0.007" size="0.0018" material="spring_mat"/>
-    <geom type="capsule" fromto=" 0.004 -0.028 0.007   0.010  0.015 0.007" size="0.0018" rgba="0.75 0.10 0.10 1"/>
-    <geom type="capsule" fromto=" 0.036 -0.032 0.007   0.036 -0.024 0.007" size="0.0016" material="base_mat"/>
-    <geom type="capsule" fromto=" 0.018 -0.040 0.007   0.010  0.006 0.007" size="0.0016" material="base_mat"/>
+    <!-- Clean power/data interconnect wires -->
+    <geom type="capsule" fromto="-0.010 0.005 0.008   0.012 -0.020 0.008" size="0.0014" material="spring_mat"/>
+    <geom type="capsule" fromto=" 0.012 -0.010 0.008   0.012  0.018 0.008" size="0.0014" material="base_mat"/>
+    <geom type="capsule" fromto="-0.005 -0.036 0.004   0.022  0.014 0.004" size="0.0012" material="pcb_purple"/>
 
-    <camera name="cam" pos="0.0 -0.17 0.16" xyaxes="1 0 0 0 0.68 0.73"/>
+    <camera name="cam" pos="0.0 -0.20 0.19" xyaxes="1 0 0 0 0.69 0.72"/>
   </worldbody></mujoco>"""
-    im = _render_tech_view(xml, 1280, 680)
+    im = _render_tech_view(xml, 1280, 720)
     d = ImageDraw.Draw(im)
     f = get_font(18, bold=True)
     labels = [
-        ((120, 175), (470, 260), "2S LiPo Battery (7.4 V)", (200, 35, 35)),
-        ((120, 445), (430, 460), "Main Power Switch", (30, 41, 59)),
-        ((120, 520), (575, 470), "5V 3A UBEC (7.4V -> 5.0V)", (165, 25, 25)),
-        ((910, 175), (780, 250), "Raspberry Pi Zero 2W", (22, 130, 65)),
-        ((910, 370), (795, 395), "USB Bus Servo Adapter", (215, 95, 15)),
-        ((910, 490), (795, 495), "Micro-USB OTG Hub", (45, 55, 72)),
+        ((70, 175), (430, 290), "2S LiPo Battery Pack (7.4 V)", (195, 35, 35)),
+        ((70, 505), (490, 495), "Grip Pushbutton (GPIO 17)", (175, 115, 0)),
+        ((70, 585), (615, 515), "BNO085 / MPU6050 IMU (I2C)", (109, 40, 217)),
+        ((915, 150), (800, 240), "Raspberry Pi Zero 2W", (22, 130, 65)),
+        ((915, 430), (815, 415), "USB Bus Servo / 5V Power Board", (215, 95, 15)),
     ]
     for (tx, ty), (px, py), text, col in labels:
         ex = tx + int(d.textlength(text, font=f)) + 8 if tx < 500 else tx - 10
         d.line([(ex, ty + 10), (px, py)], fill=col, width=2)
         d.ellipse([px - 4, py - 4, px + 4, py + 4], fill=col)
         d.text((tx, ty), text, fill=col, font=f)
-    out = _frame_figure(im, "Figure 4.5 - Compact Portable Belt / Wrist Electronics Pack Layout (~140 x 100 mm)")
+    out = _frame_figure(im, "Figure 4.5 - Portable Electronics Pack Real 3D CAD Components (Pi Zero 2W, Battery, Adapter, IMU, Button)")
     out.save(IMG_DIR / "07f_portable_pack_3d.png")
 
 
@@ -788,7 +820,7 @@ def make_06_spring():
 
 
 def make_07_camera():
-    """Figure 3.2 - 20x20 mm Sourccey Wrist Camera in +y Side Wing."""
+    """Figure 3.3 - Real 20x20 mm Wrist Camera CAD Mesh in +y Side Wing."""
     xml = _base_header(1280, 720, fovy=30) + """
     <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
     <geom type="mesh" mesh="umi_base" material="base_mat"/>
@@ -796,20 +828,17 @@ def make_07_camera():
       <joint name="q" type="hinge" axis="0 -1 0"/>
       <geom type="mesh" mesh="umi_finger" material="finger_mat"/>
     </body>
-    <!-- 20x20 mm camera floating slightly behind the +y Ø25 mm wing opening -->
-    <body name="cam_mod" pos="-0.036 0.095 -0.0175" euler="0 0 -0.38">
-      <geom type="box" pos="-0.004 0 0" size="0.0035 0.010 0.010" material="cam_mat"/>
-      <geom type="cylinder" pos="0.003 0 0" euler="0 1.5708 0" size="0.0068 0.0045" material="cam_mat"/>
-      <geom type="cylinder" pos="0.0078 0 0" euler="0 1.5708 0" size="0.0048 0.0008" material="lens_mat"/>
+    <!-- Real camera CAD mesh floating behind the +y Ø25 mm wing opening -->
+    <body name="cam_mod" pos="-0.036 0.095 -0.0175" euler="0 1.5708 -0.38">
+      <geom type="mesh" mesh="cam_cad" material="cam_mat"/>
     </body>
     <geom type="capsule" fromto="-0.036 0.095 -0.0175  -0.011 0.050 -0.0175" size="0.0006" material="guide_mat"/>
-    <!-- View from +y rear-top looking cleanly at the Ø25 mm wing opening -->
     <camera name="cam" pos="-0.14 0.25 0.14" xyaxes="-0.82 -0.57 0 0.28 -0.40 0.87"/>
   </worldbody></mujoco>"""
     im = _render_tech_view(xml, 1280, 720, qpos=[math.radians(30.0)])
     out = _frame_figure(
         im,
-        "Figure 3.2 - Sourccey 20x20 mm Wrist Camera mounted behind the +y Ø25 mm wing opening",
+        "Figure 3.3 - Sourccey 20x20 mm Wrist Camera mounted behind the +y Ø25 mm wing opening",
         ["(1) 20x20mm Wrist Camera"],
     )
     out.save(IMG_DIR / "07_camera.png")
@@ -843,6 +872,7 @@ def make_09_operation():
 
 if __name__ == "__main__":
     ensure_assets()
+    ensure_electronics_cad()
     make_01_parts()
     make_02_inserts()
     make_03_grip_on_base()
