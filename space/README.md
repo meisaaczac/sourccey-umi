@@ -7,21 +7,23 @@ sdk: docker
 app_port: 7860
 ---
 
-# Sourccey UMI — Fleet, Monocular SLAM & LeRobot Builder
+# Sourccey UMI Studio
 
-A self-contained web dashboard and Hugging Face Space modeled after Pollen Robotics' [`grabette-fleet`](https://huggingface.co/spaces/pollen-robotics/grabette-fleet) and [`grabette-slam`](https://huggingface.co/spaces/pollen-robotics/grabette-slam), adapted specifically for **Vulcan Robotics Sourccey UMI** (using **only the 20×20 mm Sourccey wrist camera + Feetech STS3215 servo**, no GoPro or depth camera required).
+A simple web app and Hugging Face Space modeled after Pollen Robotics' [`grabette-fleet`](https://huggingface.co/spaces/pollen-robotics/grabette-fleet) and [`grabette-slam`](https://huggingface.co/spaces/pollen-robotics/grabette-slam), adapted for **Vulcan Robotics Sourccey UMI** using just the **20x20 mm Sourccey wrist camera + Feetech STS3215 servo**.
 
-## Features
-1. **Record & Manage Sessions:** Create natural-language tasks, record directly from local USB camera + STS3215 (when run locally), or upload raw episode ZIPs (when hosted on Hugging Face Spaces).
-2. **Monocular SLAM + Sourccey 5-DoF IK:** Recovers metric 6-DoF camera trajectories using a printed tabletop ArUco anchor (`cv2.solvePnP`) + ORB visual odometry (`software/mono_slam.py`), then retargets onto the real Sourccey URDF (`software/build_episode.py`).
-3. **One-Click LeRobot Export & Visualizer:** Packages episodes into a standard LeRobot dataset (`software/grabette_lerobot.py`), pushes to Hugging Face Hub, and embeds [`lerobot/visualize_dataset`](https://huggingface.co/spaces/lerobot/visualize_dataset).
+> Note: this project is vibe coded and still being improved, so expect updates and fixes over time.
 
-## Run Locally
+## What it does
+1. **Record & Sessions:** create tasks, record from your local USB camera + STS3215 (when running locally), or upload episode `.zip` files (when running on Hugging Face Spaces).
+2. **Monocular SLAM + 5-DoF IK:** recovers metric 6-DoF pose from the 20x20 mm camera using a printed tabletop ArUco marker (`cv2.solvePnP`) + ORB visual odometry (`software/mono_slam.py`), then solves 5-DoF IK on the real Sourccey URDF (`software/build_episode.py`).
+3. **LeRobot Export & Visualizer:** builds a LeRobot dataset (`software/grabette_lerobot.py`), pushes it to your Hugging Face account, and embeds [`lerobot/visualize_dataset`](https://huggingface.co/spaces/lerobot/visualize_dataset).
+
+## Run locally
 ```bash
 pip install -r space/requirements.txt
 python space/app.py
 # Open http://localhost:7860
 ```
 
-## Deploy to Hugging Face Spaces
-Create a new **Docker** Space on Hugging Face and push this repository (using `space/Dockerfile` at the root or copying the `space/` + `software/` + `tools/` folders).
+## Deploy on Hugging Face Spaces
+Create a new **Docker** Space on Hugging Face and push this repo using `space/Dockerfile`.

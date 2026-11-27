@@ -1,14 +1,13 @@
-"""Sourccey UMI Studio — Fleet, Monocular SLAM & LeRobot Dataset Builder.
+"""Sourccey UMI Studio: Fleet, Monocular SLAM & LeRobot Dataset Builder.
 
-Adapted directly from Pollen Robotics' `grabette-fleet` + `grabette-slam` workflow
-for Vulcan Robotics' Sourccey UMI (single 20x20 mm wrist camera + STS3215 servo,
-no GoPro and no RGB-D depth camera required).
+Adapted from Pollen Robotics' `grabette-fleet` + `grabette-slam` workflow for
+Vulcan Robotics' Sourccey UMI using only the 20x20 mm wrist camera + STS3215 servo.
 
 Run locally (with live USB camera + STS3215 recording):
     pip install -r space/requirements.txt
     python space/app.py
 
-Or deploy directly as a Hugging Face Space (uses `space/Dockerfile` + `space/README.md`).
+Or deploy as a Hugging Face Space (uses `space/Dockerfile` + `space/README.md`).
 """
 import json
 import os
@@ -244,11 +243,11 @@ def build_ui() -> gr.Blocks:
     task_names = [t["name"] for t in tasks]
     eps = list_episodes()
 
-    with gr.Blocks(title="Sourccey UMI · Fleet & LeRobot Builder", theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(title="Sourccey UMI Studio", theme=gr.themes.Soft()) as demo:
         gr.Markdown(
-            "# Sourccey UMI — Fleet, Monocular SLAM & LeRobot Builder\n"
+            "# Sourccey UMI Studio\n"
             "Adapted from **Pollen Robotics Grabette** (`grabette-fleet` + `grabette-slam`) for "
-            "**Vulcan Robotics Sourccey** using **only the 20×20 mm wrist camera + STS3215 servo** (no GoPro)."
+            "**Vulcan Robotics Sourccey** using the **20x20 mm wrist camera + STS3215 servo**."
         )
 
         with gr.Tab("1. Record & Manage Sessions"):

@@ -1,7 +1,7 @@
 """Monocular 6-DoF pose estimation for Sourccey UMI's single 20x20 mm RGB camera.
 
-Replaces Grabette's RGB-D RTAB-Map requirement when using ONLY the Sourccey
-20x20 mm wrist camera (no GoPro, no depth camera):
+Replaces Grabette's RGB-D RTAB-Map requirement when using only the Sourccey
+20x20 mm wrist camera:
   1. Tabletop ArUco Metric Anchor (preferred, $0): place a printed ArUco marker
      (e.g. ID 10, 80 mm) flat on the workspace table. `cv2.solvePnP` recovers
      metric 6-DoF camera pose whenever the marker is visible.

@@ -1,10 +1,10 @@
 """Grabette & LeRobot bridge for Sourccey UMI.
 
 Connects Sourccey UMI (20x20 mm Sourccey wrist camera + Feetech STS3215 servo) to:
-  1. Pollen Robotics Grabette (`pollen-robotics/grabette`) — drop-in STS3215
+  1. Pollen Robotics Grabette (`pollen-robotics/grabette`): drop-in STS3215
      `StsAngleCapture` adapter and Grabette episode format exporter (`raw_video.mp4`,
      `frame_timestamps.json`, `angle_data.json`, `frames.json`, `metadata.json`).
-  2. Hugging Face LeRobot (`huggingface/lerobot`) — direct dataset exporter
+  2. Hugging Face LeRobot (`huggingface/lerobot`): direct dataset exporter
      (Parquet/CSV + MP4 + meta/*.json) with optional `--push-to-hub` so you can
      inspect episodes directly in the LeRobot Visualizer web app:
      https://huggingface.co/spaces/lerobot/visualize_dataset
