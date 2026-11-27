@@ -434,9 +434,320 @@ def make_07c_portable_wiring():
 
     out = _frame_figure(
         img,
-        "Figure 4.2 - Portable Wireless Mode (Raspberry Pi Zero 2W + 2S LiPo + 5V BEC + IMU + Button)",
+        "Figure 4.3 - Portable Wireless Mode (Raspberry Pi Zero 2W + 2S LiPo + 5V BEC + IMU + Button)",
     )
     out.save(IMG_DIR / "07c_portable_wiring.png")
+
+
+def make_06b_velcro_strap():
+    """Figure 3.2 - Zoomed close-up of threading the 15 mm velcro strap through the trigger pad."""
+    xml = _base_header(1280, 720, fovy=24) + """
+    <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
+    <geom type="mesh" mesh="umi_base" material="ctx_mat"/>
+    <body name="hinge" pos="0 0 0">
+      <joint name="q" type="hinge" axis="0 -1 0"/>
+      <geom type="mesh" mesh="umi_finger" material="ctx_mat"/>
+      <geom type="mesh" mesh="umi_lever" material="lever_mat"/>
+      <!-- Black 15mm velcro strap threaded cleanly through the two side slots (-y=-0.042, -0.030) -->
+      <geom type="capsule" fromto="-0.017 -0.042 -0.042  -0.002 -0.042 -0.042" size="0.0026" material="cam_mat"/>
+      <geom type="capsule" fromto="-0.017 -0.030 -0.042  -0.002 -0.030 -0.042" size="0.0026" material="cam_mat"/>
+      <geom type="capsule" fromto="-0.002 -0.042 -0.042   0.016 -0.042 -0.042" size="0.0026" material="cam_mat"/>
+      <geom type="capsule" fromto="-0.002 -0.030 -0.042   0.016 -0.030 -0.042" size="0.0026" material="cam_mat"/>
+      <geom type="capsule" fromto=" 0.016 -0.042 -0.042   0.022 -0.036 -0.042" size="0.0026" material="cam_mat"/>
+      <geom type="capsule" fromto=" 0.016 -0.030 -0.042   0.022 -0.036 -0.042" size="0.0026" material="cam_mat"/>
+      <geom type="capsule" fromto="-0.017 -0.042 -0.042  -0.017 -0.030 -0.042" size="0.0026" material="cam_mat"/>
+    </body>
+    <camera name="cam" pos="0.11 -0.18 -0.03" xyaxes="0.82 0.57 0 -0.06 0.08 0.99"/>
+  </worldbody></mujoco>"""
+    im = _render_tech_view(xml, 1280, 720, qpos=[math.radians(30.0)])
+    d = ImageDraw.Draw(im)
+    f = get_font(18, bold=True)
+    d.text((870, 390), "Loop around index finger", fill=(20, 28, 40), font=f)
+    d.line([(860, 398), (745, 420)], fill=(20, 28, 40), width=2)
+    d.text((870, 480), "Thread through both side slots", fill=(22, 130, 72), font=f)
+    d.line([(860, 488), (690, 468)], fill=(22, 130, 72), width=2)
+    out = _frame_figure(
+        im,
+        "Figure 3.2 - Threading the 15 mm Velcro Finger Strap through the Trigger Pad Slots",
+        ["(1) 15mm Velcro Strap (~200mm)"],
+    )
+    out.save(IMG_DIR / "06b_velcro_strap.png")
+
+
+def make_07d_cable_routing():
+    """Figure 4.1 - 3D view of Cable Routing, BNO085 IMU, Pushbutton, LED & Zip Ties on the Grip."""
+    xml = _base_header(1280, 720, fovy=30) + """
+    <geom type="mesh" mesh="umi_grip" material="grip_mat"/>
+    <geom type="mesh" mesh="umi_base" material="ctx_mat"/>
+    <geom type="mesh" mesh="umi_servo" material="servo_mat"/>
+    <body name="hinge" pos="0 0 0">
+      <joint name="q" type="hinge" axis="0 -1 0"/>
+      <geom type="mesh" mesh="umi_finger" material="ctx_mat"/>
+      <geom type="mesh" mesh="umi_lever" material="ctx_mat"/>
+    </body>
+
+    <!-- BNO085 IMU mounted flat on top of the grip beam -->
+    <geom type="box" pos="-0.052 -0.028 -0.005" size="0.011 0.009 0.0025" rgba="0.48 0.22 0.85 1"/>
+
+    <!-- Tactile Start/Stop Pushbutton (yellow) + Status LED (red) on upper rear of pistol grip -->
+    <geom type="cylinder" pos="-0.066 -0.037 -0.044" euler="0 1.5708 0" size="0.0055 0.0035" rgba="0.92 0.72 0.08 1"/>
+    <geom type="sphere" pos="-0.066 -0.037 -0.058" size="0.0035" material="spring_mat"/>
+
+    <!-- 3-pin STS3215 Servo Cable (blue) routing out of base and down rear of pistol grip -->
+    <geom type="capsule" fromto="-0.025 -0.015 -0.022  -0.068 -0.030 -0.030" size="0.0022" material="base_mat"/>
+    <geom type="capsule" fromto="-0.068 -0.030 -0.030  -0.068 -0.032 -0.148" size="0.0022" material="base_mat"/>
+
+    <!-- 20x20 mm Wrist Camera USB Cable (green) routing from +y wing around back down rear of grip -->
+    <geom type="capsule" fromto="-0.018 0.052 -0.018   -0.068 0.010 -0.025" size="0.0022" material="lever_mat"/>
+    <geom type="capsule" fromto="-0.068 0.010 -0.025   -0.068 -0.038 -0.034" size="0.0022" material="lever_mat"/>
+    <geom type="capsule" fromto="-0.068 -0.038 -0.034  -0.068 -0.040 -0.148" size="0.0022" material="lever_mat"/>
+
+    <!-- Zip ties securing cables at z = -0.075 and z = -0.118 -->
+    <geom type="box" pos="-0.046 -0.037 -0.075" size="0.023 0.017 0.002" rgba="0.10 0.10 0.12 1"/>
+    <geom type="box" pos="-0.046 -0.037 -0.118" size="0.023 0.017 0.002" rgba="0.10 0.10 0.12 1"/>
+
+    <!-- Rear-3/4 view showing back of pistol grip, IMU, button, LED, cables & zip ties -->
+    <camera name="cam" pos="-0.26 -0.24 0.06" xyaxes="0.68 -0.73 0 0.22 0.20 0.95"/>
+  </worldbody></mujoco>"""
+    im = _render_tech_view(xml, 1280, 720, qpos=[math.radians(30.0)])
+    d = ImageDraw.Draw(im)
+    f = get_font(18, bold=True)
+    # Clean non-overlapping callouts on right & left margins
+    callouts = [
+        ((820, 210), (655, 290), "BNO085 / MPU6050 IMU (flat on beam)", (109, 40, 217)),
+        ((820, 290), (618, 365), "Record Button (GPIO 17) + Status LED (GPIO 27)", (180, 115, 0)),
+        ((820, 385), (630, 445), "STS3215 Cable (blue) + Camera USB (green)", (29, 78, 216)),
+        ((820, 475), (620, 515), "Zip Ties (leave gentle slack at wrist)", (30, 41, 59)),
+    ]
+    for (tx, ty), (px, py), label, col in callouts:
+        d.line([(tx - 10, ty + 10), (px, py)], fill=col, width=2)
+        d.ellipse([px - 4, py - 4, px + 4, py + 4], fill=col)
+        d.text((tx, ty), label, fill=col, font=f)
+    out = _frame_figure(
+        im,
+        "Figure 4.1 - Cable Routing, Zip Ties, Optional IMU & Grip Pushbutton Placement",
+        ["(4) Zip Ties", "Optional: IMU + Button + LED"],
+    )
+    out.save(IMG_DIR / "07d_cable_routing.png")
+
+
+def make_07e_pi_gpio_pinout():
+    """Figure 4.4 - Exact Raspberry Pi Zero 2W 40-Pin GPIO Pinout for Portable Mode."""
+    W, H = 1280, 640
+    img = Image.new("RGB", (W, H), (255, 255, 255))
+    draw = ImageDraw.Draw(img)
+    ft = get_font(20, bold=True)
+    fs = get_font(15, bold=True)
+    fn = get_font(14, bold=False)
+
+    draw.text((W // 2, 34), "Raspberry Pi Zero 2W  -  GPIO Header Connections (Top 16 Pins)", fill=(20, 28, 40), font=ft, anchor="mm")
+
+    # Draw pins 1..16 (2 columns x 8 rows) cleanly centered
+    cx_l, cx_r = 560, 720
+    y_start, dy = 98, 58
+    draw.rounded_rectangle([cx_l - 38, y_start - 30, cx_r + 38, y_start + 7 * dy + 30], radius=12, fill=(241, 245, 249), outline=(71, 85, 105), width=2)
+
+    pins = [
+        # (num, col_side, row, color, name, dest)
+        (1,  "L", 0, (234, 88, 12),   "3.3V Power",      "-> IMU VCC (3.3V)"),
+        (2,  "R", 0, (220, 38, 38),   "5V Power",        "<- 5V 3A UBEC (+5V)"),
+        (3,  "L", 1, (124, 58, 237),  "GPIO 2 (SDA1)",   "-> IMU SDA"),
+        (4,  "R", 1, (220, 38, 38),   "5V Power",        "(spare 5V)"),
+        (5,  "L", 2, (124, 58, 237),  "GPIO 3 (SCL1)",   "-> IMU SCL"),
+        (6,  "R", 2, (30, 41, 59),    "GND",             "<- UBEC GND + IMU GND"),
+        (7,  "L", 3, (148, 163, 184), "GPIO 4",          "(unused)"),
+        (8,  "R", 3, (148, 163, 184), "GPIO 14 (TX)",    "(unused)"),
+        (9,  "L", 4, (30, 41, 59),    "GND",             "<- Button GND + LED/Buzzer GND"),
+        (10, "R", 4, (148, 163, 184), "GPIO 15 (RX)",    "(unused)"),
+        (11, "L", 5, (202, 138, 4),   "GPIO 17",         "-> Start/Stop Pushbutton"),
+        (12, "R", 5, (148, 163, 184), "GPIO 18",         "(unused)"),
+        (13, "L", 6, (22, 163, 74),   "GPIO 27",         "-> Status LED (+330 ohm) / Buzzer"),
+        (14, "R", 6, (30, 41, 59),    "GND",             "(common GND)"),
+        (15, "L", 7, (148, 163, 184), "GPIO 22",         "(unused)"),
+        (16, "R", 7, (148, 163, 184), "GPIO 23",         "(unused)"),
+    ]
+    for num, side, row, col, name, dest in pins:
+        px = cx_l if side == "L" else cx_r
+        py = y_start + row * dy
+        draw.ellipse([px - 17, py - 17, px + 17, py + 17], fill=col, outline=(255, 255, 255), width=2)
+        draw.text((px, py), str(num), fill=(255, 255, 255), font=fs, anchor="mm")
+        active = dest != "(unused)"
+        tc = (20, 28, 40) if active else (148, 163, 184)
+        if side == "L":
+            draw.text((px - 52, py - 8), name, fill=tc, font=fs if active else fn, anchor="rm")
+            if active:
+                draw.text((px - 52, py + 11), dest, fill=col, font=fs, anchor="rm")
+        else:
+            draw.text((px + 52, py - 8), name, fill=tc, font=fs if active else fn, anchor="lm")
+            if active:
+                draw.text((px + 52, py + 11), dest, fill=col, font=fs, anchor="lm")
+
+    draw.rounded_rectangle([60, 560, W - 60, 610], radius=8, fill=(239, 246, 255), outline=(37, 99, 235), width=2)
+    draw.text((W // 2, 585), "Enable I2C on the Pi once:  sudo raspi-config -> Interface Options -> I2C -> Enable", fill=(30, 58, 138), font=fs, anchor="mm")
+
+    out = _frame_figure(img, "Figure 4.4 - Raspberry Pi Zero 2W GPIO Header Pinout (IMU, Button, LED/Buzzer, 5V UBEC)")
+    out.save(IMG_DIR / "07e_pi_gpio_pinout.png")
+
+
+def make_07f_portable_pack_3d():
+    """Figure 4.5 - 3D Layout of the Portable Belt/Wrist Electronics Pack."""
+    xml = _base_header(1280, 680, fovy=32) + """
+    <!-- Pack base tray (130 x 95 mm compact belt pouch footprint) -->
+    <geom type="box" pos="0 0 -0.004" size="0.072 0.052 0.004" rgba="0.88 0.90 0.93 1"/>
+
+    <!-- 2S LiPo Battery (7.4V, red/silver brick on left) -->
+    <geom type="box" pos="-0.036 0.012 0.012" size="0.028 0.034 0.012" rgba="0.86 0.22 0.20 1"/>
+    <!-- Main Power Toggle Switch -->
+    <geom type="box" pos="-0.048 -0.034 0.007" size="0.010 0.007 0.007" rgba="0.16 0.18 0.22 1"/>
+    <!-- 5V 3A UBEC Buck Converter (dark red module) -->
+    <geom type="box" pos="-0.012 -0.034 0.006" size="0.016 0.009 0.006" rgba="0.72 0.14 0.14 1"/>
+
+    <!-- Raspberry Pi Zero 2W (green PCB on right-top) -->
+    <geom type="box" pos="0.030 0.018 0.004" size="0.0325 0.015 0.003" rgba="0.14 0.58 0.28 1"/>
+    <geom type="box" pos="0.030 0.029 0.009" size="0.025 0.0025 0.004" rgba="0.15 0.16 0.18 1"/>
+
+    <!-- USB Bus Servo Adapter (orange/blue PCB right-bottom) -->
+    <geom type="box" pos="0.036 -0.018 0.005" size="0.021 0.013 0.005" rgba="0.92 0.45 0.12 1"/>
+    <!-- Micro-USB OTG Hub (compact dark gray bar) -->
+    <geom type="box" pos="0.036 -0.040 0.005" size="0.022 0.006 0.005" rgba="0.22 0.24 0.28 1"/>
+
+    <!-- Interconnect wires -->
+    <geom type="capsule" fromto="-0.048 -0.020 0.012  -0.048 -0.030 0.008" size="0.0018" material="spring_mat"/>
+    <geom type="capsule" fromto="-0.038 -0.034 0.007  -0.026 -0.034 0.007" size="0.0018" material="spring_mat"/>
+    <geom type="capsule" fromto=" 0.004 -0.034 0.007   0.015 -0.018 0.007" size="0.0018" material="spring_mat"/>
+    <geom type="capsule" fromto=" 0.004 -0.028 0.007   0.010  0.015 0.007" size="0.0018" rgba="0.75 0.10 0.10 1"/>
+    <geom type="capsule" fromto=" 0.036 -0.032 0.007   0.036 -0.024 0.007" size="0.0016" material="base_mat"/>
+    <geom type="capsule" fromto=" 0.018 -0.040 0.007   0.010  0.006 0.007" size="0.0016" material="base_mat"/>
+
+    <camera name="cam" pos="0.0 -0.17 0.16" xyaxes="1 0 0 0 0.68 0.73"/>
+  </worldbody></mujoco>"""
+    im = _render_tech_view(xml, 1280, 680)
+    d = ImageDraw.Draw(im)
+    f = get_font(18, bold=True)
+    labels = [
+        ((120, 175), (470, 260), "2S LiPo Battery (7.4 V)", (200, 35, 35)),
+        ((120, 445), (430, 460), "Main Power Switch", (30, 41, 59)),
+        ((120, 520), (575, 470), "5V 3A UBEC (7.4V -> 5.0V)", (165, 25, 25)),
+        ((910, 175), (780, 250), "Raspberry Pi Zero 2W", (22, 130, 65)),
+        ((910, 370), (795, 395), "USB Bus Servo Adapter", (215, 95, 15)),
+        ((910, 490), (795, 495), "Micro-USB OTG Hub", (45, 55, 72)),
+    ]
+    for (tx, ty), (px, py), text, col in labels:
+        ex = tx + int(d.textlength(text, font=f)) + 8 if tx < 500 else tx - 10
+        d.line([(ex, ty + 10), (px, py)], fill=col, width=2)
+        d.ellipse([px - 4, py - 4, px + 4, py + 4], fill=col)
+        d.text((tx, ty), text, fill=col, font=f)
+    out = _frame_figure(im, "Figure 4.5 - Compact Portable Belt / Wrist Electronics Pack Layout (~140 x 100 mm)")
+    out.save(IMG_DIR / "07f_portable_pack_3d.png")
+
+
+def make_07g_bimanual_wiring():
+    """Figure 4.6 - Bimanual (Dual-Arm) Daisy-Chain Wiring Diagram."""
+    W, H = 1280, 560
+    img = Image.new("RGB", (W, H), (255, 255, 255))
+    draw = ImageDraw.Draw(img)
+    ft = get_font(19, bold=True)
+    fs = get_font(14, bold=False)
+    fw = get_font(14, bold=True)
+
+    def box(x0, y0, x1, y1, fill, outl, title, lines):
+        draw.rounded_rectangle([x0, y0, x1, y1], radius=10, fill=fill, outline=outl, width=3)
+        draw.text(((x0 + x1) // 2, y0 + 24), title, fill=(20, 28, 40), font=ft, anchor="mm")
+        for i, ln in enumerate(lines):
+            draw.text(((x0 + x1) // 2, y0 + 52 + i * 21), ln, fill=(65, 78, 96), font=fs, anchor="mm")
+
+    box(40, 60, 350, 200, (239, 246, 255), (37, 99, 235), "LEFT Sourccey UMI", [
+        "STS3215 Servo: ID 6 (torque OFF)",
+        "20x20 mm Wrist Camera: Cam 0",
+        "cad/stl/*_LEFT.stl",
+    ])
+    box(40, 300, 350, 440, (240, 253, 244), (22, 163, 74), "RIGHT Sourccey UMI", [
+        "STS3215 Servo: ID 16 (torque OFF)",
+        "20x20 mm Wrist Camera: Cam 2",
+        "cad/stl/*_RIGHT.stl",
+    ])
+    box(490, 95, 810, 235, (255, 247, 237), (234, 88, 12), "SINGLE Bus Servo Adapter", [
+        "Waveshare / Feetech URT-1",
+        "Polls ID 6 + ID 16 on same port",
+        "Powered by 7.4 V DC / 2S LiPo",
+    ])
+    box(910, 155, 1240, 365, (241, 245, 249), (30, 41, 59), "Host PC / Raspberry Pi", [
+        "python software/record_bimanual.py",
+        "--port /dev/ttyACM0",
+        "--id-left 6 --id-right 16",
+        "--cam-left 0 --cam-right 2",
+        "1 shared monotonic clock!",
+    ])
+
+    # Daisy-chain 3-pin bus: Right -> Left -> Adapter
+    draw.line([(195, 300), (195, 200)], fill=(37, 99, 235), width=5)
+    draw.text((280, 250), "3-pin Daisy-Chain", fill=(37, 99, 235), font=fw, anchor="mm")
+    draw.line([(350, 145), (490, 145)], fill=(37, 99, 235), width=5)
+    draw.text((420, 126), "3-pin Bus", fill=(37, 99, 235), font=fw, anchor="mm")
+    # Adapter -> PC
+    draw.line([(810, 165), (860, 165), (860, 220), (910, 220)], fill=(234, 88, 12), width=5)
+    draw.text((860, 148), "USB", fill=(234, 88, 12), font=fw, anchor="mm")
+    # Cam 0 & Cam 2 -> PC
+    draw.line([(350, 185), (430, 185), (430, 275), (910, 275)], fill=(22, 163, 74), width=4)
+    draw.text((640, 260), "Left Camera USB (Cam 0)", fill=(22, 163, 74), font=fw, anchor="mm")
+    draw.line([(350, 370), (860, 370), (860, 325), (910, 325)], fill=(16, 130, 90), width=4)
+    draw.text((640, 355), "Right Camera USB (Cam 2)", fill=(16, 130, 90), font=fw, anchor="mm")
+
+    draw.rounded_rectangle([40, 475, 1240, 528], radius=8, fill=(239, 246, 255), outline=(37, 99, 235), width=2)
+    draw.text((640, 502), "TIP: Set unique servo IDs (ID 6 Left, ID 16 Right) one-by-one BEFORE daisy-chaining both servos together.", fill=(30, 58, 138), font=fw, anchor="mm")
+
+    out = _frame_figure(img, "Figure 4.6 - Bimanual (Dual-Arm) Daisy-Chain Setup Sharing One Bus Servo Adapter")
+    out.save(IMG_DIR / "07g_bimanual_wiring.png")
+
+
+def make_08b_aruco_placement():
+    """Figure 5.0 - ArUco Marker Placement: ID 0 (finger), ID 1 (jaw), ID 10 (80mm tabletop anchor)."""
+    xml = _base_header(1280, 720, fovy=32) + """
+    <!-- Tabletop plane -->
+    <geom type="box" pos="0.04 0 -0.140" size="0.22 0.18 0.003" rgba="0.93 0.94 0.96 1"/>
+    <!-- Printed 80mm Tabletop ArUco ID 10 Anchor -->
+    <geom type="box" pos="0.11 0.01 -0.136" size="0.042 0.042 0.0008" rgba="1 1 1 1"/>
+    <geom type="box" pos="0.11 0.01 -0.135" size="0.036 0.036 0.0008" rgba="0.10 0.10 0.12 1"/>
+    <geom type="box" pos="0.10 0.02 -0.134" size="0.011 0.011 0.0008" rgba="1 1 1 1"/>
+    <geom type="box" pos="0.12 -0.00 -0.134" size="0.011 0.011 0.0008" rgba="1 1 1 1"/>
+
+    <!-- UMI hovering cleanly above tabletop -->
+    <body name="umi" pos="-0.02 0 -0.005">
+      <geom type="mesh" mesh="umi_grip" material="ctx_mat"/>
+      <geom type="mesh" mesh="umi_base" material="base_mat"/>
+      <!-- ArUco ID 1 (20mm) on outer blue fixed jaw -->
+      <geom type="box" pos="0.032 -0.022 -0.036" size="0.010 0.001 0.010" rgba="1 1 1 1"/>
+      <geom type="box" pos="0.032 -0.023 -0.036" size="0.007 0.001 0.007" rgba="0.10 0.10 0.12 1"/>
+      <body name="hinge" pos="0 0 0">
+        <joint name="q" type="hinge" axis="0 -1 0"/>
+        <geom type="mesh" mesh="umi_finger" material="finger_mat"/>
+        <geom type="mesh" mesh="umi_lever" material="lever_mat"/>
+        <!-- ArUco ID 0 (20mm) on top flat face of orange finger -->
+        <geom type="box" pos="0.044 0.0 0.016" euler="0 0.25 0" size="0.010 0.010 0.001" rgba="1 1 1 1"/>
+        <geom type="box" pos="0.044 0.0 0.017" euler="0 0.25 0" size="0.007 0.007 0.001" rgba="0.10 0.10 0.12 1"/>
+      </body>
+    </body>
+
+    <camera name="cam" pos="0.24 -0.38 0.12" xyaxes="0.85 0.52 0 -0.22 0.36 0.91"/>
+  </worldbody></mujoco>"""
+    im = _render_tech_view(xml, 1280, 720, qpos=[math.radians(32.0)])
+    d = ImageDraw.Draw(im)
+    f = get_font(18, bold=True)
+    callouts = [
+        ((790, 155), (610, 210), "ArUco ID 0 (20x20 mm) on orange finger", (215, 95, 15)),
+        ((790, 265), (595, 360), "ArUco ID 1 (20x20 mm) on blue fixed jaw", (37, 99, 235)),
+        ((875, 480), (775, 515), "ArUco ID 10 (80x80 mm) on table", (20, 28, 40)),
+    ]
+    for (tx, ty), (px, py), label, col in callouts:
+        d.line([(tx - 10, ty + 10), (px, py)], fill=col, width=2)
+        d.ellipse([px - 4, py - 4, px + 4, py + 4], fill=col)
+        d.text((tx, ty), label, fill=col, font=f)
+    out = _frame_figure(
+        im,
+        "Figure 5.0 - ArUco Sticker Placement (On-Grip Clock Sync + Tabletop Metric Scale Anchor)",
+        ["(2) 20mm ArUco (ID 0, ID 1)", "(1) 80mm Tabletop ArUco (ID 10)"],
+    )
+    out.save(IMG_DIR / "08b_aruco_placement.png")
 
 
 def make_06_spring():
@@ -539,8 +850,14 @@ if __name__ == "__main__":
     make_05a_servo_install()
     make_05_assembled()
     make_06_spring()
+    make_06b_velcro_strap()
     make_07_camera()
+    make_07d_cable_routing()
     make_07b_wiring()
     make_07c_portable_wiring()
+    make_07e_pi_gpio_pinout()
+    make_07f_portable_pack_3d()
+    make_07g_bimanual_wiring()
+    make_08b_aruco_placement()
     make_09_operation()
     print("Generated all Sourccey-manual style assembly figures in", IMG_DIR)
