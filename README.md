@@ -113,7 +113,7 @@ git clone https://github.com/meisaaczac/sourccey-umi && cd sourccey-umi
 pip install -r requirements.txt
 
 # 1. (Optional) Re-download and re-orient the Sourccey base & finger STLs from Vulcan Robotics
-#    (print-ready LEFT and RIGHT STLs are already included in stl_sourccey/ and cad/stl/)
+#    (print-ready LEFT and RIGHT STLs are already included in cad/stl/ and cad/stl_sourccey/)
 python tools/prepare_sourccey_parts.py
 
 # 2. (Optional) Regenerate the trigger lever and pistol grip (LEFT and RIGHT)
@@ -157,8 +157,7 @@ Docs in order:
 sourccey-umi/
 ├── BOM.md & bom/bom.csv       # Bill of materials (Markdown + CSV)
 ├── BENCH_CHECKLIST.md         # Physical tests to run before real data collection
-├── cad/                       # Parametric CadQuery source + grip & lever STL/STEP (LEFT/RIGHT)
-├── stl_sourccey/              # Print-ready Sourccey base & finger STLs (LEFT/RIGHT, credit: Vulcan Robotics)
+├── cad/                       # Parametric CadQuery source + all print-ready STLs (stl/, stl_sourccey/) & STEPs
 ├── docs/                      # Guides, studio renders, MuJoCo demo video & GIF
 ├── software/                  # STS3215 reader, recorder, mono SLAM, 5-DoF IK, Grabette/LeRobot bridge
 ├── space/                     # Sourccey UMI Studio (local web UI + Hugging Face Docker Space)
@@ -179,4 +178,4 @@ sourccey-umi/
 ## Authors & License
 
 Made by **Isaac de Souza** ([@meisaaczac](https://github.com/meisaaczac)) with AI assistance (vibe coded, actively evolving).
-Code, CAD, and docs are under the **MIT License** ([`LICENSE`](LICENSE)). Original Sourccey gripper meshes in `stl_sourccey/` belong to Vulcan Robotics (see [`NOTICE.md`](NOTICE.md) and [`AUTHORS.md`](AUTHORS.md)).
+Code, CAD, and docs are under the **MIT License** ([`LICENSE`](LICENSE)). Original Sourccey gripper meshes in `cad/stl_sourccey/` belong to Vulcan Robotics (see [`NOTICE.md`](NOTICE.md) and [`AUTHORS.md`](AUTHORS.md)).

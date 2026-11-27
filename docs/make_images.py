@@ -33,7 +33,7 @@ HOLES = [(U.XF, y, z) for (y, z) in U.HOLES]
 
 # 01 parts
 f = fig1("Step 1: print 4 parts", "Base and finger come from Sourccey (tools/prepare_sourccey_parts.py). Grip and lever are from this repo (cad/stl). PETG, 0.2 mm, 4 perimeters, 40%. Already oriented for printing.", size=(10, 7.2))
-files = [("1  Sourccey base", ROOT / "stl_sourccey" / "base_sourccey_gripper_LEFT.stl", "base"), ("2  Sourccey finger", ROOT / "stl_sourccey" / "finger_sourccey_gripper_LEFT.stl", "finger"),
+files = [("1  Sourccey base", ROOT / "cad" / "stl_sourccey" / "base_sourccey_gripper_LEFT.stl", "base"), ("2  Sourccey finger", ROOT / "cad" / "stl_sourccey" / "finger_sourccey_gripper_LEFT.stl", "finger"),
          ("3  pistol grip (this repo)", ROOT / "cad" / "stl" / "pistol_grip_LEFT.stl", "grip"), ("4  trigger lever (this repo)", ROOT / "cad" / "stl" / "trigger_lever_LEFT.stl", "lever")]
 for i, (name, path, k) in enumerate(files):
     ax = f.add_subplot(2, 2, i + 1, projection="3d"); m = trimesh.load(path); c = m.bounds.mean(0); r = (m.bounds[1] - m.bounds[0]).max() / 2
